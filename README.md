@@ -30,7 +30,7 @@ Traditional Electronic Medical Records (EMRs) are passive data silos. NusaHealth
 4. **Predictive Epidemiology (LightGBM)**
    NusaHealth doesn't just record the past; it predicts the future. By combining historical consultation data with **Open-Meteo weather forecasts**, our integrated LightGBM time-series models predict disease trends and supply needs up to 14 days in advance.
 5. **Holistic Stunting Prevention**
-   A dedicated module providing AI-generated nutritional guidance, local crop recommendations, and educational materials based on Indonesian Ministry of Health guidelines.
+   A dedicated module providing nutritional guidance, local crop recommendations, and educational materials based on Indonesian Ministry of Health guidelines.
 
 ---
 
@@ -112,13 +112,13 @@ The system is highly modularized into Django apps handling specific health cente
 | Module | Description |
 |---|---|
 | `core/` | Authentication, beautiful glassmorphism Dashboard, Audit Logging, and Village Profile Settings. |
-| `patients/` | Comprehensive EMR, Patient Registration, and WHO Z-Score Stunting Detection. |
+| `patients/` | Comprehensive EMR, Patient Registration,  |
 | `consultations/` | AI Consultation UI. Supports text/image inputs, clinical guideline RAG, and escalation. |
 | `laboratory/` | Dedicated medical imaging suite (X-Ray, standard photos, lab results) powered by multimodal MedGemma. |
 | `reports/` | Real-time epidemiology dashboard. Features LightGBM forecast visualizations and automated CSV logging. |
 | `library/` | Upload clinical PDFs. Automatically chunks, embeds, and indexes into local ChromaDB for RAG context. |
-| `nutrition/` | Village-specific agricultural recommendations and AI nutrition chat. |
-| `education/` | Generates shareable, printable infographics and disease prevention materials for the public. |
+| `nutrition/` | Village-specific agricultural recommendations . |
+| `education/` | Generates shareable, printable infographics and disease prevention materials for the public on how to prevent illness. |
 
 ---
 
