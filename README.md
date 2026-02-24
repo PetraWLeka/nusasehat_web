@@ -6,13 +6,14 @@
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
 
 **NusaHealth Cloud** is a next-generation, AI-native Health Center (Puskesmas) Management System designed specifically for the **Med-Gemma Impact Challenge**. It leverages Google's state-of-the-art open-weight models (**MedGemma 4B** and **MedGemma 27B**) running entirely on your own infrastructure via **Google Cloud Run (Free L4 GPU)**.
+With NusaHealth Cloud, **no patient data ever leaves your server**.
 
 Watch full demo below
 
 [https://github.com/user-attachments/assets/8fa6d780-3ac1-4f5b-bec4-e02bf78609a6](https://github.com/user-attachments/assets/6bb9a0ab-7f43-4b6a-be01-8be35fc3c6b2)
 
 
-With NusaHealth Cloud, **no patient data ever leaves your server**.
+
 
 ---
 
