@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}{{ report.title }} — NusaHealth Cloud{% endblock %}
+{% block page_title %}Detail Laporan{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="card">
+        <div class="flex items-start justify-between gap-4 mb-5">
+            <div>
+                <h1 class="text-xl font-extrabold text-gray-900 mb-1">{{ report.title }}</h1>
+                <div class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <span>{{ report.period_start|date:"d/m/Y" }} — {{ report.period_end|date:"d/m/Y" }}</span>
+                    <span>&bull;</span>
+                    <span>Oleh: {{ report.created_by.full_name|default:report.created_by.username }}</span>
+                    <span>&bull;</span>
+                    <span>Dibuat: {{ report.created_at|date:"d/m/Y H:i" }}</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <button onclick="window.print()" class="btn-secondary text-xs">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    Cetak
+                </button>
+                <a href="{% url 'reports:edit' report.pk %}" class="btn-secondary text-xs">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    Edit
+                </a>
+            </div>
+        </div>
+
+        <!-- Summary Metrics -->
+        <div class="grid grid-cols-3 gap-3 mb-5">
+            <div class="text-center p-3 rounded-xl bg-blue-50 border border-blue-100">
+                <p class="text-2xl font-extrabold text-blue-600">{{ report.total_consultations|default:"0" }}</p>
+                <p class="text-[0.65rem] font-semibold text-blue-500 uppercase tracking-wider mt-0.5">Konsultasi</p>
+            </div>
+            <div class="text-center p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+                <p class="text-2xl font-extrabold text-emerald-600">{{ report.total_patients_served|default:"0" }}</p>
+                <p class="text-[0.65rem] font-semibold text-emerald-500 uppercase tracking-wider mt-0.5">Pasien Dilayani</p>
+            </div>
+            <div class="text-center p-3 rounded-xl bg-violet-50 border border-violet-100">
+                <p class="text-2xl font-extrabold text-violet-600">{{ report.total_inspections|default:"0" }}</p>
+                <p class="text-[0.65rem] font-semibold text-violet-500 uppercase tracking-wider mt-0.5">Inspeksi Visual</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Sections -->
+    {% if report.executive_summary %}
+    <div class="card border-l-4 border-l-primary-500">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
+                <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">Ringkasan Eksekutif</h3>
+        </div>
+        <div class="report-md text-sm text-gray-700 leading-relaxed" data-md>{{ report.executive_summary }}</div>
+    </div>
+    {% endif %}
+
+    {% if report.disease_analysis %}
+    <div class="card border-l-4 border-l-blue-500">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">Analisis Penyakit</h3>
+        </div>
+        <div class="report-md text-sm text-gray-700 leading-relaxed" data-md>{{ report.disease_analysis }}</div>
+    </div>
+    {% endif %}
+
+    {% if report.logistics_needs %}
+    <div class="card border-l-4 border-l-amber-500">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            </div>
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">Kebutuhan Logistik</h3>
+        </div>
+        <div class="report-md text-sm text-gray-700 leading-relaxed" data-md>{{ report.logistics_needs }}</div>
+    </div>
+    {% endif %}
+
+    {% if report.trend_projection %}
+    <div class="card border-l-4 border-l-violet-500">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                <svg class="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            </div>
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">Proyeksi Tren</h3>
+        </div>
+        <div class="report-md text-sm text-gray-700 leading-relaxed" data-md>{{ report.trend_projection }}</div>
+    </div>
+    {% endif %}
+
+    {% if report.recommendations %}
+    <div class="card border-l-4 border-l-emerald-500">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">Rekomendasi</h3>
+        </div>
+        <div class="report-md text-sm text-gray-700 leading-relaxed" data-md>{{ report.recommendations }}</div>
+    </div>
+    {% endif %}
+
+    {% if report.impact_estimate %}
+    <div class="card border-l-4 border-l-pink-500">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center">
+                <svg class="w-4 h-4 text-pink-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            </div>
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">Estimasi Dampak</h3>
+        </div>
+        <div class="report-md text-sm text-gray-700 leading-relaxed" data-md>{{ report.impact_estimate }}</div>
+    </div>
+    {% endif %}
+
+    {% if report.content %}
+    <div class="card">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">Laporan Lengkap</h3>
+        </div>
+        <div class="report-md text-sm text-gray-700 leading-relaxed" data-md>{{ report.content }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="flex justify-between">
+        <a href="{% url 'reports:list' %}" class="btn-secondary">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            Kembali
+        </a>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'reports:edit' report.pk %}" class="btn-secondary text-xs">Edit</a>
+            {% if request.user.role == 'admin' %}
+            <form method="post" action="{% url 'reports:delete' report.pk %}" onsubmit="return confirm('Hapus laporan ini?')">
+                {% csrf_token %}
+                <button type="submit" class="btn-danger text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    Hapus
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .report-md h1 { font-size: 1.25rem; font-weight: 800; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #111827; }
+    .report-md h2 { font-size: 1.1rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.4rem; color: #1f2937; }
+    .report-md h3 { font-size: 1rem; font-weight: 700; margin-top: 0.85rem; margin-bottom: 0.35rem; color: #374151; }
+    .report-md p { margin-bottom: 0.5rem; }
+    .report-md ul, .report-md ol { padding-left: 1.25rem; margin-bottom: 0.5rem; }
+    .report-md ul { list-style-type: disc; }
+    .report-md ol { list-style-type: decimal; }
+    .report-md li { margin-bottom: 0.25rem; }
+    .report-md strong { font-weight: 700; color: #1f2937; }
+    .report-md em { font-style: italic; }
+    .report-md code { background: #f3f4f6; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.8125rem; }
+    .report-md blockquote { border-left: 3px solid #d1d5db; padding-left: 0.75rem; color: #6b7280; margin: 0.5rem 0; }
+    .report-md table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.8125rem; }
+    .report-md th, .report-md td { border: 1px solid #e5e7eb; padding: 0.4rem 0.6rem; text-align: left; }
+    .report-md th { background: #f9fafb; font-weight: 600; }
+
+    @media print {
+        .sidebar, header, .btn-secondary, .btn-danger, form { display: none !important; }
+        .card { box-shadow: none !important; border: 1px solid #e5e7eb !important; break-inside: avoid; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    document.querySelectorAll('[data-md]').forEach(el => {
+        const raw = el.textContent;
+        if (raw && raw.trim()) {
+            el.innerHTML = marked.parse(raw);
+        }
+    });
+</script>
+{% endblock %}

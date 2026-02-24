@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Daftar Pasien — NusaHealth Cloud{% endblock %}
+{% block page_title %}Daftar Pasien{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+    <!-- Search & Filter -->
+    <div class="card">
+        <form method="get" class="flex flex-col md:flex-row gap-3 items-end">
+            <div class="flex-1 min-w-0">
+                <label class="form-label">Cari Pasien</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Cari nama, NIK..."
+                           class="form-input pl-10">
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="btn-primary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    Cari
+                </button>
+                <a href="{% url 'patients:create' %}" class="btn-primary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    Tambah
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Patient Table -->
+    <div class="table-container">
+        <div class="overflow-x-auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama Pasien</th>
+                        <th class="hidden md:table-cell">NIK</th>
+                        <th class="hidden sm:table-cell">Umur</th>
+                        <th class="text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'patients:detail' patient.pk %}" class="flex items-center gap-3 group">
+                                <div class="w-9 h-9 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    {% if patient.photo %}
+                                    <img src="{{ patient.photo.url }}" class="w-9 h-9 rounded-xl object-cover">
+                                    {% else %}
+                                    <span class="text-xs font-bold text-gray-400">{{ patient.full_name|truncatechars:2|upper }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 group-hover:text-primary-600 transition-colors truncate">{{ patient.full_name }}</p>
+                                    <p class="text-xs text-gray-400 md:hidden">{{ patient.nik|default:"-" }}</p>
+                                </div>
+                            </a>
+                        </td>
+                        <td class="text-sm text-gray-500 hidden md:table-cell font-mono text-xs">{{ patient.nik|default:"-" }}</td>
+                        <td class="text-sm text-gray-500 hidden sm:table-cell">{{ patient.age_display }}</td>
+                        <td class="text-right">
+                            <a href="{% url 'patients:detail' patient.pk %}" class="btn-secondary text-xs px-3 py-1.5">Detail</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-center py-12">
+                        <div class="empty-state">
+                            <svg class="w-12 h-12 text-gray-200" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <p>Belum ada data pasien</p>
+                        </div>
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if patients.has_other_pages %}
+    <div class="flex items-center justify-center gap-2">
+        {% if patients.has_previous %}
+        <a href="?page={{ patients.previous_page_number }}" class="btn-secondary px-3 py-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        {% endif %}
+        <span class="px-4 py-2 text-sm font-medium text-gray-500">Hal {{ patients.number }} / {{ patients.paginator.num_pages }}</span>
+        {% if patients.has_next %}
+        <a href="?page={{ patients.next_page_number }}" class="btn-secondary px-3 py-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

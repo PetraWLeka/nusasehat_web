@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Laboratorium — NusaHealth Cloud{% endblock %}
+{% block page_title %}Laboratorium Visual{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Upload Form -->
+    <div class="card">
+        <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-900">Analisis Gambar Medis</h3>
+                <p class="text-xs text-gray-400">Upload gambar untuk analisis otomatis dengan AI</p>
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'laboratory:inspect' %}" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="form-label">Pasien <span class="text-gray-400 font-normal">(opsional)</span></label>
+                    <select name="patient_id" class="form-input">
+                        <option value="">Tanpa pasien / umum</option>
+                        {% for p in patients %}
+                        <option value="{{ p.pk }}">{{ p.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Jenis Pemeriksaan</label>
+                    <select name="inspection_type" class="form-input" required>
+                        {% for value, label in inspection_types %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Gambar Medis</label>
+                    <input type="file" name="image" class="form-input" accept=".jpg, .jpeg, .png, .webp, .dcm" required>
+                    <p id="file-type-hint" class="text-xs text-gray-500 mt-1.5">Mendukung JPEG, PNG, WebP, dan DICOM.</p>
+                </div>
+            </div>
+            <button type="submit" id="btn-inspect" class="btn-primary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <span id="btn-inspect-text">Analisis dengan AI</span>
+                <svg id="btn-inspect-spinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+            </button>
+        </form>
+    </div>
+
+    <!-- Recent Inspections -->
+    <div class="card">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="font-bold text-gray-900">Riwayat Pemeriksaan</h3>
+            {% if inspections %}<span class="badge badge-gray">{{ inspections|length }} hasil</span>{% endif %}
+        </div>
+
+        <div class="space-y-3">
+            {% for inspection in inspections %}
+            <a href="{% url 'laboratory:detail' inspection.pk %}"
+               class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-primary-200 hover:shadow-sm transition-all group">
+                {% if inspection.image %}
+                <div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
+                    <img src="{{ inspection.image.url }}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
+                </div>
+                {% else %}
+                <div class="w-14 h-14 rounded-xl bg-gray-50 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                {% endif %}
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-sm text-gray-900 group-hover:text-primary-600 transition-colors">{{ inspection.patient.full_name|default:"Tanpa Pasien" }}</p>
+                    <p class="text-xs text-gray-400 mt-0.5">{{ inspection.get_inspection_type_display }} &bull; {{ inspection.created_at|date:"d/m/Y H:i" }}</p>
+                </div>
+                <div class="text-right flex-shrink-0 hidden sm:block">
+                    {% if inspection.display_diagnosis %}
+                    <p class="text-sm text-gray-700 truncate max-w-[250px] font-medium">{{ inspection.display_diagnosis }}</p>
+                    {% elif inspection.findings and inspection.findings|first != '{' %}
+                    <p class="text-sm text-gray-700 truncate max-w-[250px]">{{ inspection.findings|truncatewords:8 }}</p>
+                    {% elif inspection.findings %}
+                    <p class="text-sm text-gray-500 truncate max-w-[250px] italic">Analisis selesai</p>
+                    {% else %}
+                    <p class="text-sm text-gray-400 truncate max-w-[250px]">Menunggu</p>
+                    {% endif %}
+                    <p class="text-[0.6875rem] text-gray-400 mt-0.5">{{ inspection.model_used }}</p>
+                </div>
+                <svg class="w-4 h-4 text-gray-300 group-hover:text-primary-400 transition-colors flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </a>
+            {% empty %}
+            <div class="empty-state py-8">
+                <svg class="w-12 h-12 text-gray-200" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                <p>Belum ada pemeriksaan</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Prevent double-submit on inspection form
+(function() {
+    const form = document.querySelector('form[action*="inspect"]');
+    if (!form) return;
+    let submitted = false;
+    form.addEventListener('submit', function(e) {
+        if (submitted) {
+            e.preventDefault();
+            return false;
+        }
+        submitted = true;
+        const btn = document.getElementById('btn-inspect');
+        const txt = document.getElementById('btn-inspect-text');
+        const spinner = document.getElementById('btn-inspect-spinner');
+        if (btn) {
+            btn.disabled = true;
+            btn.classList.add('opacity-60', 'cursor-not-allowed');
+        }
+        if (txt) txt.textContent = 'Menganalisis...';
+        if (spinner) spinner.classList.remove('hidden');
+    });
+
+    const typeSelect = document.querySelector('select[name="inspection_type"]');
+    const hintText = document.getElementById('file-type-hint');
+    const fileInput = document.querySelector('input[name="image"]');
+
+    if (typeSelect && hintText) {
+        const updateHint = () => {
+            const val = typeSelect.value;
+            if (['chest_xray', 'knee_xray', 'ct_scan'].includes(val)) {
+                hintText.textContent = 'Format disarankan: DICOM, JPEG, PNG profil tinggi. Maks 10MB.';
+                fileInput.accept = '.dcm, .jpg, .jpeg, .png, .webp';
+            } else if (['dermatology', 'ophthalmology', 'histopathology'].includes(val)) {
+                hintText.textContent = 'Format disarankan: JPEG, PNG makro resolusi tinggi. Maks 10MB.';
+                fileInput.accept = '.jpg, .jpeg, .png, .webp';
+            } else if (val === 'lab_report') {
+                hintText.textContent = 'Format disarankan: Scan jelas JPEG, PNG, atau WebP. Maks 10MB.';
+                fileInput.accept = '.jpg, .jpeg, .png, .webp';
+            } else {
+                hintText.textContent = 'Mendukung JPEG, PNG, WebP, dan DICOM. Maks 10MB.';
+                fileInput.accept = '.jpg, .jpeg, .png, .webp, .dcm';
+            }
+        };
+        typeSelect.addEventListener('change', updateHint);
+        updateHint();
+    }
+})();
+</script>
+{% endblock %}

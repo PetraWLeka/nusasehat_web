@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Audit Log — NusaHealth Cloud{% endblock %}
+{% block page_title %}Audit Log{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+    <!-- Filters -->
+    <div class="card">
+        <form method="get" class="flex flex-wrap gap-3 items-end">
+            <div class="min-w-[140px]">
+                <label class="form-label">Aksi</label>
+                <select name="action" class="form-input">
+                    <option value="">Semua</option>
+                    {% for value, label in action_choices %}
+                    <option value="{{ value }}" {% if request.GET.action == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Dari</label>
+                <input type="date" name="date_from" value="{{ request.GET.date_from }}" class="form-input">
+            </div>
+            <div>
+                <label class="form-label">Sampai</label>
+                <input type="date" name="date_to" value="{{ request.GET.date_to }}" class="form-input">
+            </div>
+            <button type="submit" class="btn-primary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                Filter
+            </button>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <div class="overflow-x-auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Waktu</th>
+                        <th>User</th>
+                        <th>Aksi</th>
+                        <th>Detail</th>
+                        <th>IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td class="text-xs text-gray-500 whitespace-nowrap">{{ log.created_at|date:"d/m/Y H:i" }}</td>
+                        <td class="text-sm font-medium text-gray-800">{{ log.user.full_name|default:log.user.username|default:"-" }}</td>
+                        <td><span class="badge badge-blue">{{ log.get_action_display }}</span></td>
+                        <td class="text-sm text-gray-600 max-w-xs truncate">{{ log.details|truncatewords:15 }}</td>
+                        <td class="text-xs text-gray-400 font-mono">{{ log.ip_address }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center py-10 text-gray-400">Belum ada log</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if logs.has_other_pages %}
+    <div class="flex items-center justify-center gap-2">
+        {% if logs.has_previous %}
+        <a href="?page={{ logs.previous_page_number }}" class="btn-secondary px-3 py-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        {% endif %}
+        <span class="px-4 py-2 text-sm font-medium text-gray-500">Hal {{ logs.number }} / {{ logs.paginator.num_pages }}</span>
+        {% if logs.has_next %}
+        <a href="?page={{ logs.next_page_number }}" class="btn-secondary px-3 py-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

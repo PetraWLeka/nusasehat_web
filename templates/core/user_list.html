@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Kelola Pengguna — NusaHealth Cloud{% endblock %}
+{% block page_title %}Kelola Pengguna{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <p class="text-sm text-gray-500 font-medium">{{ users.count }} pengguna terdaftar</p>
+        <a href="{% url 'core:user_create' %}" class="btn-primary">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Tambah Pengguna
+        </a>
+    </div>
+
+    <div class="table-container">
+        <div class="overflow-x-auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th class="text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-primary-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <span class="text-xs font-bold text-primary-600">{{ u.full_name|default:u.username|truncatechars:2|upper }}</span>
+                                </div>
+                                <span class="text-sm font-semibold text-gray-900">{{ u.full_name|default:u.username }}</span>
+                            </div>
+                        </td>
+                        <td class="text-sm text-gray-500">{{ u.username }}</td>
+                        <td><span class="badge {% if u.role == 'admin' %}badge-blue{% else %}badge-gray{% endif %}">{{ u.get_role_display }}</span></td>
+                        <td><span class="badge {% if u.is_active %}badge-green{% else %}badge-red{% endif %}">{% if u.is_active %}Aktif{% else %}Nonaktif{% endif %}</span></td>
+                        <td class="text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{% url 'core:user_edit' u.pk %}" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    Edit
+                                </a>
+                                {% if u.pk != request.user.pk %}
+                                <form method="post" action="{% url 'core:user_toggle' u.pk %}" class="inline"
+                                      onsubmit="return confirm('Yakin {% if u.is_active_account %}nonaktifkan{% else %}aktifkan{% endif %} pengguna ini?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-700 font-medium">{% if u.is_active_account %}Nonaktifkan{% else %}Aktifkan{% endif %}</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center py-10 text-gray-400">Belum ada pengguna</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

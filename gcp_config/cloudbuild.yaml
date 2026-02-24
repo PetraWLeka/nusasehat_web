@@ -1,0 +1,11 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'MODEL_NAME=${_MODEL_NAME}'
+      - '-t'
+      - 'us-east4-docker.pkg.dev/$PROJECT_ID/my-repo/${_IMAGE_NAME}'
+      - '.'
+images:
+  - 'us-east4-docker.pkg.dev/$PROJECT_ID/my-repo/${_IMAGE_NAME}'

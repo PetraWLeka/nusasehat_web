@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{% if form.instance.pk %}Edit{% else %}Tambah{% endif %} Pasien — NusaHealth Cloud{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Edit{% else %}Tambah{% endif %} Pasien{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="card">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-900">Data Pasien</h3>
+                <p class="text-xs text-gray-400">Lengkapi informasi pasien di bawah ini</p>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-5">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>{{ form.non_field_errors.0 }}</span>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for field in form %}
+                <div {% if field.name == 'address' %}class="md:col-span-2"{% endif %}>
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% if field.name == 'address' %}
+                    <textarea name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                              class="form-input" rows="2" placeholder="Masukkan {{ field.label|lower }}">{{ field.value|default:'' }}</textarea>
+                    {% elif field.name == 'photo' %}
+                    <input type="file" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                           class="form-input" accept="image/jpeg,image/png,image/webp">
+                    {% elif field.name == 'date_of_birth' %}
+                    <input type="date" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                           value="{{ field.value|default:'' }}" class="form-input">
+                    {% elif field.field.widget.input_type == 'select' %}
+                    <select name="{{ field.html_name }}" id="{{ field.id_for_label }}" class="form-input">
+                        {% for value, label in field.field.choices %}
+                        <option value="{{ value }}" {% if field.value == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% else %}
+                    <input type="{{ field.field.widget.input_type|default:'text' }}"
+                           name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                           value="{{ field.value|default:'' }}"
+                           class="form-input"
+                           {% if field.name == 'weight' or field.name == 'height' or field.name == 'temperature' %}step="0.1" placeholder="0.0"{% endif %}
+                           {% if field.field.required %}required{% endif %}>
+                    {% endif %}
+                    {% if field.errors %}<p class="text-xs text-red-600 mt-1.5">{{ field.errors.0 }}</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="flex gap-3 pt-3 border-t border-gray-100">
+                <button type="submit" class="btn-primary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    Simpan
+                </button>
+                <a href="{% url 'patients:list' %}" class="btn-secondary">Batal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

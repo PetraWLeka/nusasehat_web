@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Laporan Desa — NusaHealth Cloud{% endblock %}
+{% block page_title %}Laporan Desa{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-extrabold text-gray-900">Laporan Desa</h1>
+                <p class="text-sm text-gray-400">Analisis data kesehatan desa dari CSV</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate Report Form -->
+    <div class="card" x-data="{ showForm: false }">
+        <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Buat Laporan Baru</h3>
+            <button @click="showForm = !showForm" class="btn-primary text-xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Generate Laporan
+            </button>
+        </div>
+        <form x-show="showForm" x-transition method="post" action="{% url 'reports:create' %}" class="mt-4 pt-4 border-t border-gray-100">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Periode Mulai</label>
+                    <input type="date" name="period_start" required class="form-input">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Periode Akhir</label>
+                    <input type="date" name="period_end" required class="form-input">
+                </div>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button type="submit" class="btn-primary" onclick="return confirm('Generate laporan dari data CSV? Proses ini mungkin memakan waktu.')">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Generate Laporan
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Reports Table -->
+    {% if reports %}
+    <div class="card p-0 overflow-hidden">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Judul</th>
+                        <th>Periode</th>
+                        <th>Dibuat oleh</th>
+                        <th>Tanggal</th>
+                        <th class="text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td>
+                            <a href="{% url 'reports:detail' report.pk %}" class="font-semibold text-gray-900 hover:text-primary-600 transition-colors">
+                                {{ report.title|truncatechars:50 }}
+                            </a>
+                        </td>
+                        <td class="text-sm text-gray-500">{{ report.period_start|date:"d/m/Y" }} — {{ report.period_end|date:"d/m/Y" }}</td>
+                        <td class="text-sm text-gray-500">{{ report.created_by.full_name|default:report.created_by.username }}</td>
+                        <td class="text-sm text-gray-400">{{ report.created_at|date:"d/m/Y H:i" }}</td>
+                        <td class="text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{% url 'reports:detail' report.pk %}" class="p-1.5 rounded-lg text-gray-400 hover:text-primary-600 hover:bg-primary-50 transition-colors" title="Lihat">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </a>
+                                <a href="{% url 'reports:edit' report.pk %}" class="p-1.5 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-colors" title="Edit">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                </a>
+                                {% if request.user.role == 'admin' %}
+                                <form method="post" action="{% url 'reports:delete' report.pk %}" class="inline" onsubmit="return confirm('Hapus laporan ini?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Hapus">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="empty-state">
+            <svg class="w-16 h-16 text-gray-200" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <p class="font-medium text-gray-400 mt-3">Belum ada laporan desa</p>
+            <p class="text-sm text-gray-300 mt-1">Klik "Generate Laporan AI" untuk membuat laporan pertama</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

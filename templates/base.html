@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <meta name="theme-color" content="#059669">
+    <title>{% block title %}NusaHealth Cloud{% endblock %}</title>
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'] },
+                    colors: {
+                        primary: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 300:'#6ee7b7', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857', 800:'#065f46', 900:'#064e3b' },
+                        danger: { 50:'#fef2f2', 100:'#fee2e2', 500:'#ef4444', 600:'#dc2626', 700:'#b91c1c' },
+                        warning: { 50:'#fffbeb', 100:'#fef3c7', 500:'#f59e0b', 600:'#d97706' },
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.14.3/dist/cdn.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+    <!-- Marked.js for AI markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-[#f8f9fb] font-sans" x-data="{ sidebarOpen: window.innerWidth >= 768 }" @resize.window="sidebarOpen = window.innerWidth >= 768 ? sidebarOpen : false">
+    <div class="flex h-full">
+
+        <!-- Mobile Overlay -->
+        <div x-show="sidebarOpen" @click="sidebarOpen = false" class="mobile-overlay" x-transition:enter="transition-opacity duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak></div>
+
+        <!-- ==================== SIDEBAR ==================== -->
+        <aside class="sidebar bg-white border-r border-gray-200/80 flex flex-col flex-shrink-0"
+               :class="sidebarOpen ? '' : 'sidebar-collapsed'">
+
+            <!-- Logo -->
+            <div class="h-16 flex items-center px-6 border-b border-gray-100 flex-shrink-0">
+                <a href="{% url 'core:dashboard' %}" class="flex items-center gap-3 group">
+                    <div class="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-sm shadow-primary-200 group-hover:shadow-md group-hover:shadow-primary-200 transition-shadow">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="font-bold text-gray-900 text-[0.9375rem] tracking-tight">NusaHealth</span>
+                        <span class="block text-[0.625rem] font-medium text-primary-600 -mt-0.5 tracking-wider uppercase">Cloud</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
+                <p class="px-4 text-[0.625rem] font-bold text-gray-400 uppercase tracking-[0.08em] mb-2">Menu Utama</p>
+
+                <a href="{% url 'core:dashboard' %}"
+                   class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    Dashboard
+                </a>
+                <a href="{% url 'patients:list' %}"
+                   class="sidebar-link {% if request.resolver_match.app_name == 'patients' %}active{% endif %}">
+                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Pasien
+                </a>
+                <a href="{% url 'consultations:staff_chat' %}"
+                   class="sidebar-link {% if request.resolver_match.app_name == 'consultations' %}active{% endif %}">
+                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                    Konsultasi AI
+                </a>
+                <a href="{% url 'laboratory:main' %}"
+                   class="sidebar-link {% if request.resolver_match.app_name == 'laboratory' %}active{% endif %}">
+                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    Laboratorium
+                </a>
+                <a href="{% url 'reports:epidemiology' %}"
+                   class="sidebar-link {% if request.resolver_match.url_name == 'epidemiology' %}active{% endif %}">
+                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    Analisis Data
+                </a>
+                <a href="{% url 'reports:list' %}"
+                   class="sidebar-link {% if request.resolver_match.url_name == 'list' and request.resolver_match.app_name == 'reports' %}active{% endif %}">
+                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Laporan Desa
+                </a>
+                <a href="{% url 'library:main' %}"
+                   class="sidebar-link {% if request.resolver_match.app_name == 'library' %}active{% endif %}">
+                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    Perpustakaan
+                </a>
+                <a href="{% url 'education:education' %}"
+                   class="sidebar-link {% if request.resolver_match.app_name == 'education' and request.resolver_match.url_name != 'stunting_prevention' %}active{% endif %}">
+                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
+                    Edukasi
+                </a>
+                <a href="{% url 'education:stunting_prevention' %}"
+                   class="sidebar-link {% if request.resolver_match.url_name == 'stunting_prevention' %}active{% endif %}">
+                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                    Pencegahan Stunting
+                </a>
+
+                <!--
+                <a href="{% url 'nutrition:main' %}"
+                   class="sidebar-link {% if request.resolver_match.app_name == 'nutrition' %}active{% endif %} opacity-40 pointer-events-none">
+                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Nutrisi (Segera)
+                </a>
+                -->
+
+                {% if user.role == 'admin' %}
+                <div class="pt-5 mt-5 border-t border-gray-100">
+                    <p class="px-4 text-[0.625rem] font-bold text-gray-400 uppercase tracking-[0.08em] mb-2">Administrasi</p>
+                    <a href="{% url 'core:user_list' %}"
+                       class="sidebar-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}">
+                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        Kelola User
+                    </a>
+                    <a href="{% url 'core:settings' %}"
+                       class="sidebar-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        Pengaturan
+                    </a>
+                    <a href="{% url 'core:audit_log' %}"
+                       class="sidebar-link {% if request.resolver_match.url_name == 'audit_log' %}active{% endif %}">
+                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Audit Log
+                    </a>
+                </div>
+                {% endif %}
+            </nav>
+
+            <!-- User Info -->
+            <div class="border-t border-gray-100 p-4 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-sm">
+                        <span class="text-xs font-bold text-white">
+                            {{ user.full_name|default:user.username|truncatechars:2|upper }}
+                        </span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-900 truncate">{{ user.full_name|default:user.username }}</p>
+                        <p class="text-[0.6875rem] text-gray-400 font-medium">{{ user.get_role_display }}</p>
+                    </div>
+                    <a href="{% url 'core:logout' %}" class="p-2 rounded-lg text-gray-400 hover:text-danger-500 hover:bg-danger-50 transition-colors" title="Keluar">
+                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ==================== MAIN ==================== -->
+        <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+            <!-- Top Bar -->
+            <header class="h-16 bg-white/80 backdrop-blur-md border-b border-gray-200/60 flex items-center px-4 md:px-6 justify-between flex-shrink-0 sticky top-0 z-10">
+                <div class="flex items-center gap-3">
+                    <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                    <div>
+                        <h1 class="text-base md:text-lg font-bold text-gray-900 leading-tight">{% block page_title %}Dashboard{% endblock %}</h1>
+                        {% if village_profile %}
+                        <p class="text-[0.6875rem] text-gray-400 font-medium hidden sm:block -mt-0.5">{{ village_profile.village_name }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div id="ai-status" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50 border border-gray-100"
+                         hx-get="{% url 'core:api_ai_status' %}" hx-trigger="load" hx-swap="innerHTML">
+                        <div class="w-1.5 h-1.5 bg-gray-300 rounded-full"></div>
+                        <span class="text-[0.6875rem] font-medium text-gray-400">AI</span>
+                    </div>
+                    <a href="{% url 'core:change_password' %}" class="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors hidden sm:block" title="Ganti Password">
+                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto">
+                <div class="p-4 md:p-6 lg:p-8 max-w-[1400px] mx-auto w-full">
+                    <!-- Flash Messages -->
+                    {% if messages %}
+                    <div class="mb-6 space-y-2">
+                        {% for message in messages %}
+                        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}"
+                             x-data="{ show: true }" x-show="show" x-transition:leave="transition duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2">
+                            {% if message.tags == 'success' %}
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            {% elif message.tags == 'error' %}
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            {% else %}
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            {% endif %}
+                            <span class="flex-1">{{ message }}</span>
+                            <button @click="show = false" class="p-1 rounded-md hover:bg-black/5 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="animate-fade-in">
+                        {% block content %}{% endblock %}
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Loading Indicator (HTMX) — only shown when hx-indicator points here -->
+    <div id="global-loader" class="loading-overlay">
+        <div class="loading-card">
+            <svg class="animate-spin h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <span class="text-sm font-medium text-gray-600">Memuat...</span>
+        </div>
+    </div>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

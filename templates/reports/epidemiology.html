@@ -1,0 +1,492 @@
+{% extends "base.html" %}
+{% block title %}Analisis Data — NusaHealth Cloud{% endblock %}
+{% block page_title %}Analisis Data{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-extrabold text-gray-900">Dashboard Epidemiologi</h1>
+                <p class="text-sm text-gray-400">Monitoring penyakit, forecast & analisis wilayah</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+            <form method="post" action="{% url 'reports:trigger_forecast' %}" class="inline">
+                {% csrf_token %}
+                <input type="hidden" name="freq" value="{{ freq }}">
+                <button type="submit" class="btn-primary text-xs" onclick="return confirm('Mulai pelatihan model forecast?')">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Train Forecast
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- AI Architecture Explanation -->
+    <div class="card border-l-4 border-violet-500 bg-violet-50 hover:shadow-md transition-shadow">
+        <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0 mt-1 border border-violet-200">
+                <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-violet-900">Prediksi Cerdas dengan LightGBM</h3>
+                <p class="text-sm text-violet-800 mt-1.5 leading-relaxed">
+                    Halaman analisis ini memanfaatkan <strong>LightGBM</strong> yang dipadukan dengan <strong>Fitur Cuaca (Integrasi Open-Meteo)</strong> serta <strong>Data Historis</strong> log penyakit dan obat. Model ini memprediksi lonjakan kasus dan kebutuhan inventaris selama <strong>14 hari ke depan</strong>. Fitur ini dirancang untuk deteksi dini wabah, manajemen persediaan proaktif, serta pengalokasian sumber daya secara presisi.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters: Period + Frequency -->
+    <div class="flex flex-wrap gap-4 items-center">
+        <div class="flex flex-wrap gap-2">
+            <span class="text-xs font-semibold text-gray-500 self-center mr-1">Periode:</span>
+            {% for val, label in period_options %}
+            <a href="?period={{ val }}&freq={{ freq }}" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors {% if period == val %}bg-primary-600 text-white shadow-sm{% else %}bg-white text-gray-600 hover:bg-gray-50 border border-gray-200{% endif %}">{{ label }}</a>
+            {% endfor %}
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <span class="text-xs font-semibold text-gray-500 self-center mr-1">Forecast:</span>
+            {% for val, label in freq_options %}
+            <a href="?period={{ period }}&freq={{ val }}" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors {% if freq == val %}bg-violet-600 text-white shadow-sm{% else %}bg-white text-gray-600 hover:bg-gray-50 border border-gray-200{% endif %}">{{ label }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <div>
+                    <p class="text-2xl font-extrabold text-gray-900">{{ total_cases }}</p>
+                    <p class="text-xs text-gray-400 font-medium">Total Kasus</p>
+                </div>
+            </div>
+        </div>
+        <div class="card group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <p class="text-2xl font-extrabold text-gray-900">{{ severe_cases }}</p>
+                    <p class="text-xs text-gray-400 font-medium">Kasus Berat</p>
+                </div>
+            </div>
+        </div>
+        <div class="card group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </div>
+                <div>
+                    <p class="text-2xl font-extrabold text-gray-900">{{ followup_count }}</p>
+                    <p class="text-xs text-gray-400 font-medium">Perlu Follow-up</p>
+                </div>
+            </div>
+        </div>
+        <div class="card group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                </div>
+                <div>
+                    <p class="text-2xl font-extrabold text-gray-900">{{ category_count }}</p>
+                    <p class="text-xs text-gray-400 font-medium">Kategori Penyakit</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disease & Severity Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="card">
+            <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">Distribusi Penyakit</h3>
+            <div class="relative" style="height:300px"><canvas id="diseaseDistChart"></canvas></div>
+        </div>
+        <div class="card">
+            <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">Tingkat Keparahan</h3>
+            <div class="relative" style="height:300px"><canvas id="severityChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Top Illnesses & Items (from CSV tracking) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {% if top_illnesses %}
+        <div class="card">
+            <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">
+                <svg class="w-4 h-4 inline text-red-500 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                Top Penyakit (CSV Tracking)
+            </h3>
+            <div class="space-y-2">
+                {% for item in top_illnesses %}
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-800 capitalize">{{ item.name }}</span>
+                    <div class="flex items-center gap-2">
+                        <div class="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-red-500 rounded-full" style="width: {% widthratio item.count top_illnesses.0.count 100 %}%"></div>
+                        </div>
+                        <span class="text-xs font-bold text-gray-600 w-8 text-right">{{ item.count }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if top_items %}
+        <div class="card">
+            <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">
+                <svg class="w-4 h-4 inline text-blue-500 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                Top Kebutuhan Obat/Barang (CSV Tracking)
+            </h3>
+            <div class="space-y-2">
+                {% for item in top_items %}
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-800 capitalize">{{ item.name }}</span>
+                    <div class="flex items-center gap-2">
+                        <div class="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500 rounded-full" style="width: {% widthratio item.quantity top_items.0.quantity 100 %}%"></div>
+                        </div>
+                        <span class="text-xs font-bold text-gray-600 w-8 text-right">{{ item.quantity }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Model Training Status Banner -->
+    {% if not models_trained %}
+    <div class="card border-l-4 border-amber-400 bg-amber-50">
+        <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+            <div class="flex-1">
+                <h4 class="text-sm font-bold text-amber-800">Model Forecast Belum Dilatih</h4>
+                <p class="text-xs text-amber-700 mt-1">Grafik di bawah menampilkan data historis saja. Klik <strong>Train Forecast</strong> untuk melatih model LightGBM dan menampilkan prediksi. Proses berjalan di background via Celery.</p>
+            </div>
+            <form method="post" action="{% url 'reports:trigger_forecast' %}" class="flex-shrink-0">
+                {% csrf_token %}
+                <input type="hidden" name="freq" value="{{ freq }}">
+                <button type="submit" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg shadow transition-colors">
+                    Train Sekarang
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Forecast: Illness Trends -->
+    <div class="card">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Forecast Penyakit (LightGBM)</h3>
+            </div>
+            <span class="text-xs text-gray-400">Historis + 14 hari ke depan</span>
+        </div>
+        <div class="relative" style="height:380px"><canvas id="illnessForecastChart"></canvas></div>
+    </div>
+
+    <!-- Forecast: Item Demand -->
+    <div class="card">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Forecast Kebutuhan (LightGBM)</h3>
+            </div>
+            <span class="text-xs text-gray-400">Historis + 14 hari ke depan</span>
+        </div>
+        <div class="relative" style="height:380px"><canvas id="itemForecastChart"></canvas></div>
+    </div>
+
+    <!-- Evaluation Metrics (RMSE / MAE) -->
+    {% if eval_metrics %}
+    <div class="card">
+        <div class="flex items-center gap-2 mb-4">
+            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Evaluasi Model (Time-Series CV)</h3>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Kategori</th>
+                        <th>RMSE</th>
+                        <th>MAE</th>
+                        <th>CV Folds</th>
+                        <th>Data Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in eval_metrics %}
+                    <tr>
+                        <td class="font-medium text-gray-900 capitalize">{{ m.name }}</td>
+                        <td><span class="badge {% if m.category == 'illnesses' %}badge-red{% else %}badge-blue{% endif %}">{{ m.category|title }}</span></td>
+                        <td class="font-mono text-sm">{{ m.rmse }}</td>
+                        <td class="font-mono text-sm">{{ m.mae }}</td>
+                        <td class="text-center">{{ m.n_folds }}</td>
+                        <td class="text-center">{{ m.data_points }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Outbreak Alerts -->
+    {% if outbreak_alerts %}
+    <div class="card border-l-4 border-red-500">
+        <div class="flex items-center gap-2 mb-3">
+            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <h3 class="text-sm font-bold text-red-700 uppercase tracking-wider">Peringatan Wabah</h3>
+        </div>
+        <ul class="space-y-2">
+            {% for alert in outbreak_alerts %}
+            <li class="flex items-center gap-2 text-sm text-red-700">
+                <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse flex-shrink-0"></span>
+                <strong>{{ alert.category }}</strong> — {{ alert.patient__village|default:"Wilayah tidak diketahui" }} ({{ alert.case_count }} kasus dalam 7 hari)
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Logistics Needs -->
+    {% if logistics %}
+    <div class="card">
+        <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">Kebutuhan Logistik</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr><th>Item</th><th>Dibutuhkan</th><th>Stok</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    {% for item in logistics %}
+                    <tr>
+                        <td class="font-medium text-gray-900">{{ item.name }}</td>
+                        <td>{{ item.needed }}</td>
+                        <td>{{ item.in_stock }}</td>
+                        <td>
+                            <span class="badge {% if item.status == 'kurang' %}badge-red{% else %}badge-green{% endif %}">{{ item.status|title }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const palette = ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16'];
+
+    // ── Disease distribution chart ──
+    const diseaseData = {{ disease_chart_data|safe }};
+    if (diseaseData && diseaseData.labels && diseaseData.labels.length > 0) {
+        new Chart(document.getElementById('diseaseDistChart'), {
+            type: 'doughnut',
+            data: {
+                labels: diseaseData.labels,
+                datasets: [{
+                    data: diseaseData.data,
+                    backgroundColor: palette.slice(0, diseaseData.labels.length),
+                    borderWidth: 0,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyleWidth: 8 } } }
+            }
+        });
+    }
+
+    // ── Severity chart ──
+    const sevData = {{ severity_chart_data|safe }};
+    if (sevData && sevData.labels && sevData.labels.length > 0) {
+        new Chart(document.getElementById('severityChart'), {
+            type: 'bar',
+            data: {
+                labels: sevData.labels,
+                datasets: [{
+                    label: 'Kasus',
+                    data: sevData.data,
+                    backgroundColor: ['#10b981','#f59e0b','#ef4444'],
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    maxBarThickness: 48
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { precision: 0 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // ── Forecast Charts (historical + predicted + confidence) ──
+    const forecastRaw = {{ forecast_json|safe }};
+
+    function buildForecastChart(canvasId, chartsData, entityLabel) {
+        if (!chartsData || chartsData.length === 0) return;
+
+        const datasets = [];
+        const fcColors = ['#8b5cf6','#3b82f6','#10b981','#f59e0b','#ef4444','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16'];
+
+        // Find the union of all dates for labels
+        let allDates = new Set();
+        chartsData.forEach(c => {
+            (c.historical_dates || []).forEach(d => allDates.add(d));
+            (c.forecast_dates || []).forEach(d => allDates.add(d));
+        });
+        const labels = Array.from(allDates).sort();
+
+        chartsData.forEach((chart, idx) => {
+            const color = fcColors[idx % fcColors.length];
+            const name = chart.name.charAt(0).toUpperCase() + chart.name.slice(1);
+
+            // Historical line
+            const histMap = {};
+            (chart.historical_dates || []).forEach((d, i) => {
+                histMap[d] = (chart.historical_values || [])[i];
+            });
+            const histData = labels.map(d => histMap[d] !== undefined ? histMap[d] : null);
+
+            datasets.push({
+                label: name + ' (Historis)',
+                data: histData,
+                borderColor: color,
+                backgroundColor: color + '20',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: false,
+                pointRadius: 2,
+                spanGaps: false,
+            });
+
+            // Forecast line (dashed)
+            const fcMap = {};
+            (chart.forecast_dates || []).forEach((d, i) => {
+                fcMap[d] = (chart.forecast_values || [])[i];
+            });
+            const fcData = labels.map(d => fcMap[d] !== undefined ? fcMap[d] : null);
+
+            datasets.push({
+                label: name + ' (Prediksi)',
+                data: fcData,
+                borderColor: color,
+                borderDash: [6, 3],
+                borderWidth: 2,
+                tension: 0.3,
+                fill: false,
+                pointRadius: 3,
+                pointStyle: 'triangle',
+                spanGaps: false,
+            });
+
+            // Confidence interval band
+            if (chart.conf_lower && chart.conf_upper) {
+                const lowerMap = {};
+                const upperMap = {};
+                (chart.forecast_dates || []).forEach((d, i) => {
+                    lowerMap[d] = chart.conf_lower[i];
+                    upperMap[d] = chart.conf_upper[i];
+                });
+                datasets.push({
+                    label: name + ' (CI 90%)',
+                    data: labels.map(d => upperMap[d] !== undefined ? upperMap[d] : null),
+                    borderColor: 'transparent',
+                    backgroundColor: color + '15',
+                    fill: '+1',
+                    pointRadius: 0,
+                    spanGaps: false,
+                });
+                datasets.push({
+                    label: '_lower_' + name,
+                    data: labels.map(d => lowerMap[d] !== undefined ? lowerMap[d] : null),
+                    borderColor: 'transparent',
+                    backgroundColor: 'transparent',
+                    fill: false,
+                    pointRadius: 0,
+                    spanGaps: false,
+                });
+            }
+        });
+
+        // Simplify labels for display
+        const displayLabels = labels.map(d => {
+            const dt = new Date(d);
+            return dt.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' });
+        });
+
+        new Chart(document.getElementById(canvasId), {
+            type: 'line',
+            data: { labels: displayLabels, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 12,
+                            usePointStyle: true,
+                            filter: function(item) {
+                                return !item.text.startsWith('_lower_');
+                            }
+                        }
+                    },
+                    tooltip: {
+                        filter: function(item) {
+                            return !item.dataset.label.startsWith('_lower_');
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6' },
+                        title: { display: true, text: 'Jumlah' },
+                        ticks: { precision: 0 }
+                    },
+                    x: {
+                        grid: { display: false },
+                        title: { display: true, text: entityLabel },
+                        ticks: { maxRotation: 45, autoSkip: true, maxTicksLimit: 20 }
+                    }
+                }
+            }
+        });
+    }
+
+    if (forecastRaw && typeof forecastRaw === 'object') {
+        buildForecastChart('illnessForecastChart', forecastRaw.illness_charts || [], 'Waktu');
+        buildForecastChart('itemForecastChart', forecastRaw.item_charts || [], 'Waktu');
+    }
+});
+</script>
+{% endblock %}

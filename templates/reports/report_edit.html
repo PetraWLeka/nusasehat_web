@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Edit Laporan — NusaHealth Cloud{% endblock %}
+{% block page_title %}Edit Laporan{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-xl font-extrabold text-gray-900">Edit Laporan</h1>
+            <p class="text-sm text-gray-400 mt-0.5">{{ report.title }}</p>
+        </div>
+        <a href="{% url 'reports:detail' report.pk %}" class="btn-secondary text-xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            Batal
+        </a>
+    </div>
+
+    <!-- Edit Form -->
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Executive Summary -->
+        <div class="card">
+            <label for="executive_summary" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Ringkasan Eksekutif</label>
+            <textarea id="executive_summary" name="executive_summary" rows="5" class="form-input w-full text-sm" placeholder="Ringkasan utama laporan...">{{ report.executive_summary }}</textarea>
+        </div>
+
+        <!-- Main Content -->
+        <div class="card">
+            <label for="content" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Konten Laporan</label>
+            <textarea id="content" name="content" rows="12" class="form-input w-full text-sm" placeholder="Isi laporan lengkap...">{{ report.content }}</textarea>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card">
+            <label for="recommendations" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Rekomendasi</label>
+            <textarea id="recommendations" name="recommendations" rows="5" class="form-input w-full text-sm" placeholder="Rekomendasi tindakan...">{{ report.recommendations }}</textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-between">
+            <a href="{% url 'reports:detail' report.pk %}" class="btn-secondary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                Kembali
+            </a>
+            <button type="submit" class="btn-primary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                Simpan Perubahan
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

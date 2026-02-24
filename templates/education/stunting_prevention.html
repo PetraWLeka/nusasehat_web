@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% block title %}Pencegahan Stunting — NusaHealth Cloud{% endblock %}
+{% block page_title %}Pusat Edukasi: Cegah Stunting dari Pekarangan{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Animasi Buka/Tutup Kartu */
+    .expandable-content { 
+        max-height: 0; 
+        overflow: hidden; 
+        transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        opacity: 0;
+    }
+    .expanded { 
+        max-height: 2000px;
+        opacity: 1;
+    }
+
+    /* PERBAIKAN CETAK (PRINT) */
+    @media print {
+        body { background-color: white !important; font-size: 12pt; }
+        .expandable-content {
+            max-height: none !important;
+            opacity: 1 !important;
+            display: block !important;
+            overflow: visible !important;
+            border-top: 1px solid #ccc;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        /* Sembunyikan elemen yang tidak perlu diprint */
+        .no-print, button, header, nav, footer {
+            display: none !important;
+        }
+        .shadow-sm, .shadow-lg { box-shadow: none !important; }
+        .border-slate-200 { border-color: #000 !important; border-width: 1px; }
+        .grid { display: block !important; }
+        .break-inside-avoid { page-break-inside: avoid; margin-bottom: 20px; border: 1px solid #000; border-radius: 8px; padding: 15px; }
+    }
+</style>
+<script>
+    function toggleCard(buttonElement) {
+        const card = buttonElement.parentElement;
+        const content = card.querySelector('.expandable-content');
+        const spanText = buttonElement.querySelector('span');
+        
+        if (content.classList.contains('expanded')) {
+            content.classList.remove('expanded');
+            spanText.innerText = spanText.innerText.replace('Tutup', 'Lihat');
+        } else {
+            content.classList.add('expanded');
+            spanText.innerText = spanText.innerText.replace('Lihat', 'Tutup');
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-10 pb-16">
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-br from-emerald-600 to-teal-800 text-white p-8 md:p-12 shadow-lg rounded-[2rem] md:rounded-[3rem] no-print relative overflow-hidden">
+        <div class="relative z-10 max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">🌱 Kebun Gizi Keluarga</h1>
+            <p class="text-lg md:text-2xl opacity-90 font-medium">Panduan makanan anti-stunting yang bisa ditanam sendiri tanpa biaya mahal.</p>
+        </div>
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/[0.06] rounded-full -translate-y-1/3 translate-x-1/4"></div>
+        <div class="absolute bottom-0 right-20 w-40 h-40 bg-white/[0.04] rounded-full translate-y-1/2"></div>
+    </div>
+
+    <div class="text-center no-print">
+        <p class="text-slate-600 bg-white inline-block px-8 py-4 rounded-full shadow-sm border border-slate-200 md:text-lg">
+            Pilih kotak di bawah ini untuk melihat manfaat medis & tutorial mudahnya 👇
+        </p>
+    </div>
+
+    <!-- Food Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+        
+        <!-- Ayam Kampung -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden break-inside-avoid hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <div class="p-6 md:p-8 text-center bg-orange-50 border-b border-orange-100">
+                <div class="text-6xl md:text-7xl mb-4">🐔🥚</div>
+                <h3 class="text-2xl md:text-3xl font-bold text-orange-800">Ayam Kampung</h3>
+                <p class="text-base md:text-lg text-orange-600 font-semibold mt-2">1 Telur Setiap Hari</p>
+            </div>
+            <div class="p-6 md:p-8">
+                <p class="text-slate-600 text-base md:text-lg mb-6">Pilihan paling ekonomis dari Kemenkes untuk protein hewani, vitamin D, dan zat besi pembentuk sel otak balita.</p>
+                <button onclick="toggleCard(this)" class="no-print w-full bg-orange-100 hover:bg-orange-200 text-orange-800 font-bold py-3 md:py-4 md:text-lg rounded-xl transition flex justify-center items-center gap-2">
+                    <span>Lihat Tutorial & Fakta Medis</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="expandable-content mt-4">
+                    <strong class="text-slate-800 block mb-3 md:text-lg">🛠️ Tutorial Ternak Rumahan:</strong>
+                    <ul class="text-base md:text-lg text-slate-600 space-y-3 mb-6 list-disc pl-5">
+                        <li><strong>Kandang:</strong> Buat dari bambu di pekarangan. Jangan biarkan liar agar bebas penyakit.</li>
+                        <li><strong>Pakan:</strong> Cukup gunakan sisa nasi, cacahan batang pisang, atau sisa sayur dapur.</li>
+                        <li><strong>Aturan Makan:</strong> 1 telur rebus setiap hari untuk anak mulai usia 6 bulan.</li>
+                    </ul>
+                    <div class="space-y-2 no-print">
+                        <a href="https://keslan.kemkes.go.id/view_artikel/3293/telur-jadi-pilihan-ekonomis-cegah-stunting" target="_blank" class="block text-sm md:text-base text-blue-600 hover:underline bg-blue-50 p-3 rounded-lg">🔗 Kemenkes Rilis: Telur Cegah Stunting</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ubi Jalar Oranye -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden break-inside-avoid hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <div class="p-6 md:p-8 text-center bg-amber-50 border-b border-amber-100">
+                <div class="text-6xl md:text-7xl mb-4">🍠</div>
+                <h3 class="text-2xl md:text-3xl font-bold text-amber-800">Ubi Jalar Oranye</h3>
+                <p class="text-base md:text-lg text-amber-600 font-semibold mt-2">Karbohidrat + Vitamin A</p>
+            </div>
+            <div class="p-6 md:p-8">
+                <p class="text-slate-600 text-base md:text-lg mb-6">Pengganti nasi yang padat kalori. Kaya akan Beta-Karoten (Vitamin A) pelindung sistem imun anak balita.</p>
+                <button onclick="toggleCard(this)" class="no-print w-full bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold py-3 md:py-4 md:text-lg rounded-xl transition flex justify-center items-center gap-2">
+                    <span>Lihat Tutorial Tanam Karung</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="expandable-content mt-4">
+                    <strong class="text-slate-800 block mb-3 md:text-lg">🛠️ Tanam Hemat Tempat:</strong>
+                    <ul class="text-base md:text-lg text-slate-600 space-y-3 mb-6 list-disc pl-5">
+                        <li><strong>Media:</strong> Gulung pinggiran karung bekas beras, isi tanah dan pupuk kandang.</li>
+                        <li><strong>Tanam:</strong> Tancapkan stek batang ubi jalar (20cm) ke tanah.</li>
+                        <li><strong>Panen:</strong> Umbi dilumatkan untuk MPASI, daun bisa disayur.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daun Kelor -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden break-inside-avoid hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <div class="p-6 md:p-8 text-center bg-green-50 border-b border-green-100">
+                <div class="text-6xl md:text-7xl mb-4">🌿</div>
+                <h3 class="text-2xl md:text-3xl font-bold text-green-800">Daun Kelor</h3>
+                <p class="text-base md:text-lg text-green-600 font-semibold mt-2">Sayur Super Pencegah Anemia</p>
+            </div>
+            <div class="p-6 md:p-8">
+                <p class="text-slate-600 text-base md:text-lg mb-6">Menurut riset Kemenkes, kelor tinggi antioksidan dan zat besi. Mencegah ibu hamil kurang darah & melancarkan ASI.</p>
+                <button onclick="toggleCard(this)" class="no-print w-full bg-green-100 hover:bg-green-200 text-green-800 font-bold py-3 md:py-4 md:text-lg rounded-xl transition flex justify-center items-center gap-2">
+                    <span>Lihat Tutorial Tancap Batang</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="expandable-content mt-4">
+                    <strong class="text-slate-800 block mb-3 md:text-lg">🛠️ Cara Tanam (Stek):</strong>
+                    <ul class="text-base md:text-lg text-slate-600 space-y-3 mb-6 list-disc pl-5">
+                        <li><strong>Pilih Batang:</strong> Potong dahan pohon kelor tua 50-70 cm.</li>
+                        <li><strong>Tancap:</strong> Langsung tancapkan sedalam 20cm di pekarangan.</li>
+                        <li><strong>Konsumsi:</strong> Petik daun muda, jadikan sayur bening atau keringkan jadi bubuk MPASI.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bayam Cabut -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden break-inside-avoid hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <div class="p-6 md:p-8 text-center bg-emerald-50 border-b border-emerald-100">
+                <div class="text-6xl md:text-7xl mb-4">🥬</div>
+                <h3 class="text-2xl md:text-3xl font-bold text-emerald-800">Bayam Cabut</h3>
+                <p class="text-base md:text-lg text-emerald-600 font-semibold mt-2">Sumber Asam Folat Cepat Panen</p>
+            </div>
+            <div class="p-6 md:p-8">
+                <p class="text-slate-600 text-base md:text-lg mb-6">Penting untuk perkembangan saraf otak janin ibu hamil. Waktu panen sangat cepat (20 hari).</p>
+                <button onclick="toggleCard(this)" class="no-print w-full bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold py-3 md:py-4 md:text-lg rounded-xl transition flex justify-center items-center gap-2">
+                    <span>Lihat Tutorial Tanam Pot</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="expandable-content mt-4">
+                    <strong class="text-slate-800 block mb-3 md:text-lg">🛠️ Tanam Tanpa Lahan:</strong>
+                    <ul class="text-base md:text-lg text-slate-600 space-y-3 mb-6 list-disc pl-5">
+                        <li><strong>Media:</strong> Polybag/pot dengan campuran tanah, kompos 1:1.</li>
+                        <li><strong>Sebar:</strong> Tabur biji tipis-tipis, siram sekali sehari.</li>
+                        <li><strong>Panen:</strong> Cabut usia 20-25 hari. Masak bening jgn lebih dari 3 menit.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buah Pepaya -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden break-inside-avoid hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <div class="p-6 md:p-8 text-center bg-yellow-50 border-b border-yellow-100">
+                <div class="text-6xl md:text-7xl mb-4">🥭</div>
+                <h3 class="text-2xl md:text-3xl font-bold text-yellow-800">Buah Pepaya</h3>
+                <p class="text-base md:text-lg text-yellow-600 font-semibold mt-2">Penyerap Zat Besi (Vit A & C)</p>
+            </div>
+            <div class="p-6 md:p-8">
+                <p class="text-slate-600 text-base md:text-lg mb-6">Zat besi dari sayur tidak bisa diserap tanpa Vitamin C. Pepaya melindungi anak dari infeksi pemicu kurus.</p>
+                <button onclick="toggleCard(this)" class="no-print w-full bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-bold py-3 md:py-4 md:text-lg rounded-xl transition flex justify-center items-center gap-2">
+                    <span>Lihat Tutorial Tanam Biji</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="expandable-content mt-4">
+                    <strong class="text-slate-800 block mb-3 md:text-lg">🛠️ Cara Menyemai:</strong>
+                    <ul class="text-base md:text-lg text-slate-600 space-y-3 mb-6 list-disc pl-5">
+                        <li><strong>Persiapan:</strong> Cuci bersih biji dari pepaya matang dan jemur.</li>
+                        <li><strong>Penyemaian:</strong> Tanam di polybag kecil sedalam 1cm, berkecambah dalam 1 minggu.</li>
+                        <li><strong>Pindah Tanam:</strong> Pindahkan ke tanah pekarangan kena sinar matahari penuh.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sanitasi -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden break-inside-avoid lg:col-span-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <div class="p-6 md:p-8 text-center bg-blue-50 border-b border-blue-100">
+                <div class="text-6xl md:text-7xl mb-4">🚰🧼</div>
+                <h3 class="text-2xl md:text-3xl font-bold text-blue-800">Sanitasi & Kebersihan</h3>
+                <p class="text-base md:text-lg text-blue-600 font-semibold mt-2">Pencegah Diare & Cacingan</p>
+            </div>
+            <div class="p-6 md:p-10 flex flex-col md:flex-row gap-8 items-center">
+                <div class="md:w-2/3">
+                    <p class="text-slate-600 text-base md:text-xl mb-6 leading-relaxed"><strong>Perhatian Medis:</strong> Makanan bergizi akan terbuang percuma jika anak sering diare. Penyakit menguras gizi yang seharusnya dipakai untuk tinggi badan.</p>
+                    <ul class="text-base md:text-lg text-slate-700 space-y-4">
+                        <li class="flex items-start gap-3">
+                            <span class="text-2xl">🔥</span> 
+                            <span><strong>Rebus Air Minum:</strong> Wajib merebus air minum hingga mendidih (bergelembung besar) minimal 3 menit untuk mematikan bakteri E.coli.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-2xl">👐</span> 
+                            <span><strong>Aman & Higienis:</strong> Cuci tangan pakai sabun sebelum menyiapkan MPASI. Gunakan alat makan yang dicuci bersih.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="md:w-1/3 w-full">
+                    <a href="https://keslan.kemkes.go.id" target="_blank" class="no-print flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 md:py-6 md:text-lg rounded-2xl text-center transition shadow-md w-full">
+                        🌐 Panduan Kemenkes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Cetak Brosur Tombol -->
+    <div class="mt-12 text-center pb-6 no-print">
+        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-10 py-4 md:px-12 md:py-5 md:text-xl rounded-full font-bold shadow-xl transition flex items-center justify-center gap-3 mx-auto cursor-pointer">
+            <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Cetak Brosur Edukasi Warga
+        </button>
+        <p class="text-base md:text-lg text-slate-500 mt-4">Mencetak halaman ini akan otomatis menyembunyikan elemen website dan menampilkan brosur siap disebar ke warga.</p>
+    </div>
+</div>
+{% endblock %}

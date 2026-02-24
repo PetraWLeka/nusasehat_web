@@ -1,0 +1,98 @@
+# =============================================================
+# NusaHealth Cloud — .gitignore
+# =============================================================
+
+# --- Environment & Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+service-account*.json
+credentials*.json
+
+# --- Python Virtual Environment ---
+python_venv/
+venv/
+.venv/
+env/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+eggs/
+*.whl
+
+# --- Django ---
+*.sqlite3
+*.db
+db.sqlite3
+/static_collected/
+/staticfiles/
+/media/
+/media_uploads/
+
+# --- ChromaDB ---
+chroma_db/
+
+# --- Celery ---
+celerybeat-schedule
+celerybeat.pid
+
+# --- Redis ---
+dump.rdb
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Node (if using npm for frontend assets) ---
+node_modules/
+package-lock.json
+
+# --- Coverage ---
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# --- Pytest ---
+.pytest_cache/
+
+# --- MyPy ---
+.mypy_cache/
+
+# --- Misc ---
+*.bak
+*.tmp
+*.temp
+
+prev_vps_setup.md
+
+DEPLOYMENT.md
+
+gcp_config/hf_token.txt
+
+gcp.md

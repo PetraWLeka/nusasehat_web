@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% load l10n %}
+{% block title %}Pengaturan — NusaHealth Cloud{% endblock %}
+{% block page_title %}Pengaturan Profil Desa{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet.js CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #location-map { height: 350px; border-radius: 12px; z-index: 1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <!-- Location Map Card -->
+    <div class="card">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-900">Lokasi Puskesmas</h3>
+                <p class="text-xs text-gray-400">Klik peta atau gunakan GPS untuk menentukan lokasi</p>
+            </div>
+        </div>
+
+        <div class="flex gap-2 mb-3">
+            <button type="button" id="btn-gps" onclick="detectGPS()"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0013 3.06V1h-2v2.06A8.994 8.994 0 003.06 11H1v2h2.06A8.994 8.994 0 0011 20.94V23h2v-2.06A8.994 8.994 0 0020.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+                Deteksi GPS
+            </button>
+            <span id="gps-status" class="text-xs text-gray-400 self-center"></span>
+        </div>
+
+        <div id="location-map"></div>
+        <p class="text-xs text-gray-400 mt-2">📍 Drag marker atau klik peta untuk memilih lokasi. Koordinat otomatis terisi di form.</p>
+    </div>
+
+    <!-- Profile Form Card -->
+    <div class="card">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-900">Profil Desa</h3>
+                <p class="text-xs text-gray-400">Konfigurasi informasi puskesmas dan wilayah</p>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% for field in form %}
+            <div>
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {% if field.field.widget.input_type == 'select' %}
+                <select name="{{ field.html_name }}" id="{{ field.id_for_label }}" class="form-input">
+                    {% for value, label in field.field.choices %}
+                    <option value="{{ value }}" {% if field.value == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                {% elif field.field.widget.input_type == 'textarea' or field.name == 'description' %}
+                <textarea name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                          class="form-input" rows="3">{{ field.value|default:'' }}</textarea>
+                {% else %}
+                <input type="{{ field.field.widget.input_type|default:'text' }}"
+                       name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                       value="{% if field.name == 'latitude' or field.name == 'longitude' %}{{ field.value|unlocalize|default:'' }}{% else %}{{ field.value|default:'' }}{% endif %}"
+                       class="form-input" {% if field.field.required %}required{% endif %}
+                       {% if field.name == 'latitude' or field.name == 'longitude' %}step="any"{% endif %}>
+                {% endif %}
+                {% if field.help_text %}<p class="text-xs text-gray-400 mt-1.5">{{ field.help_text }}</p>{% endif %}
+                {% if field.errors %}<p class="text-xs text-red-600 mt-1.5">{{ field.errors.0 }}</p>{% endif %}
+            </div>
+            {% endfor %}
+            <div class="pt-2">
+                <button type="submit" class="btn-primary">Simpan Pengaturan</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Leaflet.js -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function() {
+    // Default center: Indonesia
+    const defaultLat = -2.5;
+    const defaultLng = 118.0;
+    const defaultZoom = 5;
+
+    // Get existing coordinates from form
+    const latInput = document.getElementById('id_latitude');
+    const lngInput = document.getElementById('id_longitude');
+    
+    // Replace commas with dots just in case they sneak in, before parsing to float
+    let latRaw = latInput && latInput.value ? latInput.value.replace(',', '.') : '';
+    let lngRaw = lngInput && lngInput.value ? lngInput.value.replace(',', '.') : '';
+    
+    let initLat = parseFloat(latRaw) || defaultLat;
+    let initLng = parseFloat(lngRaw) || defaultLng;
+    let initZoom = (latRaw && lngRaw) ? 15 : defaultZoom;
+
+    // Initialize map
+    const map = L.map('location-map').setView([initLat, initLng], initZoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+    }).addTo(map);
+
+    // Draggable marker
+    let marker = null;
+    if (latInput?.value && lngInput?.value) {
+        marker = L.marker([initLat, initLng], { draggable: true }).addTo(map);
+        marker.bindPopup(`<b>Lokasi Puskesmas</b><br>${initLat.toFixed(6)}, ${initLng.toFixed(6)}`).openPopup();
+        setupMarkerDrag(marker);
+    }
+
+    function setLocation(lat, lng, zoom) {
+        lat = parseFloat(lat.toFixed(6));
+        lng = parseFloat(lng.toFixed(6));
+
+        if (latInput) latInput.value = lat;
+        if (lngInput) lngInput.value = lng;
+
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            setupMarkerDrag(marker);
+        }
+        marker.bindPopup(`<b>Lokasi Puskesmas</b><br>${lat}, ${lng}`).openPopup();
+
+        if (zoom) map.setView([lat, lng], zoom);
+        else map.panTo([lat, lng]);
+    }
+
+    function setupMarkerDrag(m) {
+        m.on('dragend', function(e) {
+            const pos = e.target.getLatLng();
+            setLocation(pos.lat, pos.lng);
+        });
+    }
+
+    // Click on map to place marker
+    map.on('click', function(e) {
+        setLocation(e.latlng.lat, e.latlng.lng, map.getZoom());
+    });
+
+    // GPS Detection
+    window.detectGPS = function() {
+        const statusEl = document.getElementById('gps-status');
+        const btnEl = document.getElementById('btn-gps');
+
+        if (!navigator.geolocation) {
+            statusEl.textContent = 'GPS tidak didukung browser ini';
+            statusEl.className = 'text-xs text-red-500 self-center';
+            return;
+        }
+
+        btnEl.disabled = true;
+        statusEl.textContent = 'Mendeteksi lokasi...';
+        statusEl.className = 'text-xs text-blue-500 self-center animate-pulse';
+
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                setLocation(pos.coords.latitude, pos.coords.longitude, 16);
+                statusEl.textContent = 'Lokasi terdeteksi!';
+                statusEl.className = 'text-xs text-green-600 self-center';
+                btnEl.disabled = false;
+            },
+            function(err) {
+                statusEl.textContent = 'Gagal: ' + err.message;
+                statusEl.className = 'text-xs text-red-500 self-center';
+                btnEl.disabled = false;
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+    };
+
+    // Fix map rendering after page load (Leaflet needs this for hidden containers)
+    setTimeout(() => map.invalidateSize(), 200);
+})();
+</script>
+{% endblock %}

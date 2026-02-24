@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NusaHealth Cloud — The Future of Health Center Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.14.3/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"','system-ui','sans-serif'] },
+                    colors: {
+                        brand: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 300:'#6ee7b7', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857', 800:'#065f46', 900:'#064e3b', 950:'#022c22' }
+                    },
+                    animation: {
+                        'blob': "blob 7s infinite",
+                        'slide-up': "slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                        'fade-in': "fadeIn 1s ease-out forwards",
+                    },
+                    keyframes: {
+                        blob: {
+                            "0%": { transform: "translate(0px, 0px) scale(1)" },
+                            "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+                            "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+                            "100%": { transform: "translate(0px, 0px) scale(1)" }
+                        },
+                        slideUp: {
+                            "0%": { opacity: 0, transform: "translateY(40px)" },
+                            "100%": { opacity: 1, transform: "translateY(0)" }
+                        },
+                        fadeIn: {
+                            "0%": { opacity: 0 },
+                            "100%": { opacity: 1 }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak]{display:none!important}
+        body { background-color: #030712; color: #fff; }
+        .glass-nav { background: rgba(3, 7, 18, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
+        .glass-card:hover { transform: translateY(-5px); border-color: rgba(16, 185, 129, 0.3); box-shadow: 0 10px 40px rgba(16, 185, 129, 0.15); }
+        .text-gradient { background: linear-gradient(135deg, #34d399 0%, #0ea5e9 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .text-gradient-purple { background: linear-gradient(135deg, #c084fc 0%, #ec4899 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .bg-grid-pattern { background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 40px 40px; }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+    </style>
+</head>
+<body x-data="landingPage()" x-cloak class="antialiased selection:bg-brand-500 selection:text-white">
+
+<!-- FIXED DECORATIVE BLOBS -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-brand-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob"></div>
+    <div class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob animation-delay-2000"></div>
+    <div class="absolute bottom-[-20%] left-[20%] w-[40rem] h-[40rem] bg-purple-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob animation-delay-4000"></div>
+    <div class="absolute inset-0 bg-grid-pattern opacity-[0.15]"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-[#030712]"></div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 w-full z-50 transition-all duration-300" :class="scrolled ? 'glass-nav py-3' : 'bg-transparent py-5'">
+    <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-400 to-blue-500 p-[1px]">
+                <div class="w-full h-full bg-gray-950 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <span class="text-xl font-bold tracking-tight">NusaHealth<span class="text-brand-400">Cloud</span></span>
+        </div>
+        
+        <div class="hidden md:flex items-center gap-8">
+            <a href="#features" class="text-sm font-medium text-gray-300 hover:text-white transition-colors" x-text="t.nav_features"></a>
+            <a href="#models" class="text-sm font-medium text-gray-300 hover:text-white transition-colors" x-text="t.nav_models"></a>
+            <a href="#privacy" class="text-sm font-medium text-gray-300 hover:text-white transition-colors" x-text="t.nav_privacy"></a>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <!-- Language Toggle -->
+            <div class="bg-white/5 border border-white/10 rounded-full p-1 flex">
+                <button @click="setLang('en')" class="px-3 py-1 text-xs font-bold rounded-full transition-all" :class="lang === 'en' ? 'bg-brand-500 text-white shadow' : 'text-gray-400 hover:text-white'">EN</button>
+                <button @click="setLang('id')" class="px-3 py-1 text-xs font-bold rounded-full transition-all" :class="lang === 'id' ? 'bg-brand-500 text-white shadow' : 'text-gray-400 hover:text-white'">ID</button>
+            </div>
+            <a href="#login" class="hidden sm:inline-flex px-5 py-2.5 bg-white text-gray-900 font-bold text-sm rounded-full hover:bg-gray-100 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                <span x-text="t.nav_login"></span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO SECTION -->
+<section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden z-10 flex flex-col items-center justify-center min-h-screen">
+    <div class="max-w-5xl mx-auto px-6 text-center">
+        
+        <div class="opacity-0 animate-slide-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-300 text-sm font-medium mb-8 backdrop-blur-md">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+            </span>
+            <span x-text="t.hero_badge"></span>
+        </div>
+
+        <h1 class="opacity-0 animate-slide-up delay-100 text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
+            <span x-text="t.hero_title_1"></span><br>
+            <span class="text-gradient" x-text="t.hero_title_2"></span>
+        </h1>
+        
+        <p class="opacity-0 animate-slide-up delay-200 text-lg md:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed mb-10" x-text="t.hero_desc"></p>
+        
+        <div class="opacity-0 animate-slide-up delay-300 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="#login" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-brand-500 to-emerald-400 text-gray-950 font-bold text-base rounded-full hover:scale-105 transition-transform shadow-[0_0_30px_rgba(16,185,129,0.4)]">
+                <span x-text="t.hero_cta"></span>
+            </a>
+            <a href="#features" class="w-full sm:w-auto px-8 py-4 bg-white/5 border border-white/10 text-white font-semibold text-base rounded-full hover:bg-white/10 transition-colors backdrop-blur-md">
+                <span x-text="t.hero_learn"></span>
+            </a>
+        </div>
+
+        <!-- L4 GPU BADGE -->
+        <div class="opacity-0 animate-fade-in delay-[400ms] mt-16 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm font-medium text-gray-500">
+            <div class="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
+                <span class="text-brand-400 font-bold">1.</span>
+                <span class="text-gray-300">Target: Daerah 3T Indonesia</span>
+            </div>
+            <div class="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
+                <span class="text-purple-400 font-bold">2.</span>
+                <span class="text-gray-300">Google HAI-DEF Open-Weight</span>
+            </div>
+            <div class="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
+                <span class="text-blue-400 font-bold">3.</span>
+                <span class="text-gray-300">Zero Data Leakage (L4 VPC)</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- BENTOGRID FEATURES -->
+<section id="features" class="relative py-24 z-10">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-5xl font-bold tracking-tight mb-4" x-text="t.features_title"></h2>
+            <p class="text-lg text-gray-400 max-w-2xl mx-auto" x-text="t.features_desc"></p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[250px]">
+            <!-- Col 1 -->
+            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between group md:col-span-2">
+                <div>
+                    <div class="w-12 h-12 rounded-2xl bg-brand-500/20 text-brand-400 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Agentic Consultations</h3>
+                    <p class="text-gray-400 leading-relaxed">Chat with MedGemma. It autonomously extracts diagnoses, abstracts clinical notes, and logs supply needs directly to the epidemiology database.</p>
+                </div>
+            </div>
+            <!-- Col 2 -->
+            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between group bg-gradient-to-b from-transparent to-blue-900/20">
+                <div>
+                    <div class="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Multimodal AI Vision</h3>
+                    <p class="text-sm text-gray-400">Upload 7 types of medical images (X-Rays, Dermatology). The 4B agent instantly identifies anatomical regions.</p>
+                </div>
+            </div>
+            <!-- Col 3 -->
+            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between group bg-gradient-to-b from-transparent to-purple-900/20">
+                <div>
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Solving "Gratis Tapi Sulit"</h3>
+                    <p class="text-sm text-gray-400">Tackling the 3T supply chain crisis. 27B Agent autonomously parses needed meds into a database, bypassing human logging errors.</p>
+                </div>
+            </div>
+            <!-- Col 4 -->
+            <div class="glass-card rounded-3xl p-8 flex flex-col justify-between group md:col-span-2">
+                <div>
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Predictive Epidemiology</h3>
+                    <p class="text-gray-400 leading-relaxed">NusaHealth doesn't just record the past. By fusing historical AI chat data with Open-Meteo weather APIs, our LightGBM engine forecasts disease outbreaks and inventory depletion 14 days in advance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DUAL AI ARCHITECTURE -->
+<section id="models" class="relative py-24 z-10 border-t border-white/5 bg-gradient-to-b from-transparent to-[#050b14]">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-gradient-purple" x-text="t.models_title"></h2>
+            <p class="text-lg text-gray-400 max-w-2xl mx-auto" x-text="t.models_desc"></p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- 4B Model -->
+            <div class="glass-card rounded-[2rem] p-10 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-brand-500/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
+                <div class="relative z-10">
+                    <div class="inline-block px-3 py-1 bg-brand-500/20 border border-brand-500/30 text-brand-300 text-xs font-bold rounded-full mb-6 uppercase tracking-wider">Fast / Multimodal</div>
+                    <h3 class="text-3xl font-bold mb-4">MedGemma 1.5 <span class="text-brand-400">4B IT</span></h3>
+                    <p class="text-gray-400 leading-relaxed mb-8" x-text="t.model_4b_desc"></p>
+                    <ul class="space-y-3 mb-8 text-sm text-gray-300">
+                        <li class="flex items-center gap-3"><svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Frontline Triage & OCR</li>
+                        <li class="flex items-center gap-3"><svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 7-Type Medical Imaging</li>
+                        <li class="flex items-center gap-3"><svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> FP16 Precision</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 27B Model -->
+            <div class="glass-card rounded-[2rem] p-10 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
+                <div class="relative z-10">
+                    <div class="inline-block px-3 py-1 bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold rounded-full mb-6 uppercase tracking-wider">Deep Logic / Reasoning</div>
+                    <h3 class="text-3xl font-bold mb-4">MedGemma <span class="text-purple-400">27B Text IT</span></h3>
+                    <p class="text-gray-400 leading-relaxed mb-8" x-text="t.model_27b_desc"></p>
+                    <ul class="space-y-3 mb-8 text-sm text-gray-300">
+                        <li class="flex items-center gap-3"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Autonomous Escalation Node</li>
+                        <li class="flex items-center gap-3"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Complex Specialist Abstraction</li>
+                        <li class="flex items-center gap-3"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 4-bit Quantization (fits L4 GPU)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- LOGIN SECTION -->
+<section id="login" class="relative py-32 z-10">
+    <div class="max-w-md mx-auto px-6 relative">
+        
+        <!-- Premium Form Container -->
+        <div class="glass-card rounded-[2.5rem] p-10 relative overflow-hidden backdrop-blur-2xl border-t border-l border-white/20 shadow-[0_30px_60px_rgba(0,0,0,0.4)]">
+            <!-- Internal Glow -->
+            <div class="absolute -top-32 -right-32 w-64 h-64 bg-brand-500/30 rounded-full blur-[64px] pointer-events-none"></div>
+            
+            <div class="text-center mb-10 relative z-10">
+                <div class="w-16 h-16 mx-auto bg-gradient-to-br from-brand-400 to-blue-500 p-[2px] rounded-2xl mb-6 shadow-2xl">
+                    <div class="w-full h-full bg-gray-950 rounded-2xl flex items-center justify-center">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="text-3xl font-bold text-white tracking-tight" x-text="t.login_title"></h2>
+                <p class="text-gray-400 mt-2 text-sm" x-text="t.login_subtitle"></p>
+            </div>
+
+            <div class="relative z-10">
+                {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for message in messages %}
+                    <div class="flex items-center gap-3 p-4 rounded-xl text-sm font-medium {% if message.tags == 'error' %}bg-red-500/10 text-red-400 border border-red-500/20{% else %}bg-brand-500/10 text-brand-300 border border-brand-500/20{% endif %}">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if form.errors %}
+                <div class="mb-6 flex items-center gap-3 p-4 rounded-xl text-sm font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span x-text="t.login_error"></span>
+                </div>
+                {% endif %}
+
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    <div>
+                        <label for="id_username" class="block text-sm font-semibold text-gray-300 mb-2">Username</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-brand-400 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            </div>
+                            <input type="text" name="username" id="id_username" required autofocus
+                                   class="w-full bg-black/20 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white/5 transition-all shadow-inner"
+                                   :placeholder="t.login_user_ph">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="id_password" class="block text-sm font-semibold text-gray-300 mb-2">Password</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-brand-400 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            </div>
+                            <input type="password" name="password" id="id_password" required
+                                   class="w-full bg-black/20 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white/5 transition-all shadow-inner"
+                                   :placeholder="t.login_pass_ph">
+                        </div>
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-white text-gray-950 py-4 rounded-2xl hover:bg-gray-100 transition-all font-bold text-base shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] hover:-translate-y-1 active:translate-y-0">
+                        <span x-text="t.login_btn"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Minimal Footer -->
+        <div class="text-center mt-10 relative z-10">
+            <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-4 text-gradient">Zero Data Leakage</p>
+            <p class="text-xs text-gray-600">&copy; 2026 NusaHealth Cloud. Engineered for the Med-Gemma Impact Challenge.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ALPINE.JS LOGIC -->
+<script>
+function landingPage() {
+    const translations = {
+        en: {
+            nav_features: 'Platform', nav_models: 'AI Cascade', nav_privacy: 'Security', nav_login: 'Access Portal',
+            hero_badge: 'The Agentic Workflow Platform for 3T Regions',
+            hero_title_1: 'Zero Data Leakage.',
+            hero_title_2: 'Ending the 3T Crisis.',
+            hero_desc: 'Indonesia faces a double burden of disease in remote "3T" regions. NusaHealth Cloud deploys an open-weight MedGemma AI Cascade to autonomously triage patients, extract diagnostic JSONs, and forecast disease epidemiology—all contained within a private medical VPC.',
+            hero_cta: 'Enter Agentic Portal',
+            hero_learn: 'Explore Tech Specs',
+            features_title: 'More Than a Chatbot. An Autonomous Workflow.',
+            features_desc: 'Engineered specifically for the "Agentic Workflow Prize", NusaHealth transforms clinical abstraction into an autonomous data pipeline.',
+            models_title: 'Scale-to-Zero Cascade Architecture',
+            models_desc: 'Two specialized MedGemma models. Functioning autonomously on Google Cloud Run utilizing entirely Free L4 GPU hardware setups.',
+            model_4b_desc: 'The frontline multimodal agent. Extremely low latency. It ingests patient text and 7 variants of medical imagery to provide immediate triage and OCR extraction.',
+            model_27b_desc: 'The deep-reasoning specialist. Automatically escalated to during complex cases. Summarizes entire clinical trajectories and structurally writes to the predictive LightGBM database.',
+            login_title: 'Welcome Back',
+            login_subtitle: 'Authenticate to access the zero-leakage medical environment',
+            login_error: 'Authentication failed. Please verify credentials.',
+            login_user_ph: 'Administrator Username',
+            login_pass_ph: 'Secure Password',
+            login_btn: 'Authenticate & Enter',
+        },
+        id: {
+            nav_features: 'Platform', nav_models: 'Kaskade AI', nav_privacy: 'Keamanan', nav_login: 'Portal Akses',
+            hero_badge: 'Platform Alur Kerja Agentic untuk Daerah 3T',
+            hero_title_1: 'Nol Kebocoran Data.',
+            hero_title_2: 'Solusi Krisis 3T.',
+            hero_desc: 'Indonesia menghadapi beban ganda penyakit di daerah "3T". NusaHealth Cloud menyebarkan Kaskade AI MedGemma open-weight untuk melakukan triase mandiri, mengekstrak JSON diagnostik, dan meramalkan epidemiologi—semua berada di dalam VPC medis pribadi.',
+            hero_cta: 'Masuk Portal Agentic',
+            hero_learn: 'Eksplorasi Teknologi',
+            features_title: 'Bukan Sekadar Chatbot. Alur Kerja Mandiri.',
+            features_desc: 'Dirancang khusus untuk "Agentic Workflow Prize", NusaHealth mengubah abstraksi klinis menjadi jalur data otonom.',
+            models_title: 'Arsitektur Kaskade Scale-to-Zero',
+            models_desc: 'Dua model MedGemma khusus. Berfungsi secara otonom di Google Cloud Run menggunakan penyiapan perangkat keras GPU L4 Gratis sepenuhnya.',
+            model_4b_desc: 'Agen multimodal garis depan. Latensi ekstrim rendah. Menerima teks pasien dan 7 varian citra medis untuk triase instan dan ekstraksi OCR.',
+            model_27b_desc: 'Spesialis penalaran mendalam. Dihubungi secara otomatis saat kasus kompleks. Meringkas lintasan klinis panjang dan menulis secara struktural ke database LightGBM prediktif.',
+            login_title: 'Selamat Datang',
+            login_subtitle: 'Autentikasi untuk mengakses lingkungan medis tanpa kebocoran',
+            login_error: 'Autentikasi gagal. Harap periksa kredensial.',
+            login_user_ph: 'Username Administrator',
+            login_pass_ph: 'Password Aman',
+            login_btn: 'Autentikasi & Masuk',
+        }
+    };
+
+    return {
+        lang: localStorage.getItem('nusahealth_lang') || 'en',
+        scrolled: false,
+        get t() { return translations[this.lang]; },
+        setLang(l) {
+            this.lang = l;
+            localStorage.setItem('nusahealth_lang', l);
+        },
+        init() {
+            window.addEventListener('scroll', () => {
+                this.scrolled = window.scrollY > 20;
+            });
+        }
+    };
+}
+</script>
+
+</body>
+</html>

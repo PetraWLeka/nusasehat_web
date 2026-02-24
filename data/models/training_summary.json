@@ -1,0 +1,2145 @@
+{
+  "trained_at": "2026-02-24T18:42:40.305900",
+  "method": "LightGBM",
+  "n_splits": 5,
+  "illnesses": {
+    "cacingan": {
+      "avg_rmse": 0.962,
+      "avg_mae": 0.759,
+      "data_points": 351,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 61,
+          "val_size": 58,
+          "rmse": 1.517,
+          "mae": 1.255,
+          "best_iteration": 37
+        },
+        {
+          "fold": 2,
+          "train_size": 119,
+          "val_size": 58,
+          "rmse": 0.921,
+          "mae": 0.688,
+          "best_iteration": 84
+        },
+        {
+          "fold": 3,
+          "train_size": 177,
+          "val_size": 58,
+          "rmse": 0.743,
+          "mae": 0.584,
+          "best_iteration": 85
+        },
+        {
+          "fold": 4,
+          "train_size": 235,
+          "val_size": 58,
+          "rmse": 0.802,
+          "mae": 0.636,
+          "best_iteration": 173
+        },
+        {
+          "fold": 5,
+          "train_size": 293,
+          "val_size": 58,
+          "rmse": 0.828,
+          "mae": 0.633,
+          "best_iteration": 160
+        }
+      ],
+      "top_features": [
+        [
+          "precipitation",
+          1001.72
+        ],
+        [
+          "rain",
+          275.04
+        ],
+        [
+          "rolling_mean_7",
+          173.93
+        ],
+        [
+          "rolling_mean_14",
+          127.05
+        ],
+        [
+          "precip_lag_21",
+          89.49
+        ],
+        [
+          "temp_mean",
+          75.01
+        ],
+        [
+          "precip_lag_7",
+          66.74
+        ],
+        [
+          "rolling_std_7",
+          41.06
+        ],
+        [
+          "temp_max",
+          40.99
+        ],
+        [
+          "day_of_month",
+          34.71
+        ]
+      ]
+    },
+    "demam berdarah": {
+      "avg_rmse": 1.945,
+      "avg_mae": 1.4,
+      "data_points": 432,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 72,
+          "val_size": 72,
+          "rmse": 3.874,
+          "mae": 2.89,
+          "best_iteration": 98
+        },
+        {
+          "fold": 2,
+          "train_size": 144,
+          "val_size": 72,
+          "rmse": 1.627,
+          "mae": 1.162,
+          "best_iteration": 82
+        },
+        {
+          "fold": 3,
+          "train_size": 216,
+          "val_size": 72,
+          "rmse": 1.351,
+          "mae": 0.915,
+          "best_iteration": 70
+        },
+        {
+          "fold": 4,
+          "train_size": 288,
+          "val_size": 72,
+          "rmse": 1.473,
+          "mae": 0.928,
+          "best_iteration": 96
+        },
+        {
+          "fold": 5,
+          "train_size": 360,
+          "val_size": 72,
+          "rmse": 1.398,
+          "mae": 1.105,
+          "best_iteration": 75
+        }
+      ],
+      "top_features": [
+        [
+          "precipitation",
+          9761.76
+        ],
+        [
+          "rain",
+          2732.48
+        ],
+        [
+          "rolling_std_7",
+          1658.74
+        ],
+        [
+          "rolling_mean_7",
+          634.28
+        ],
+        [
+          "day_of_week",
+          459.86
+        ],
+        [
+          "temp_rolling_7",
+          301.25
+        ],
+        [
+          "rolling_mean_14",
+          285.26
+        ],
+        [
+          "temp_max",
+          145.56
+        ],
+        [
+          "rolling_sum_7",
+          125.25
+        ],
+        [
+          "precip_rolling_7",
+          83.0
+        ]
+      ]
+    },
+    "dermatitis": {
+      "avg_rmse": 1.026,
+      "avg_mae": 0.795,
+      "data_points": 515,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 90,
+          "val_size": 85,
+          "rmse": 1.291,
+          "mae": 0.954,
+          "best_iteration": 95
+        },
+        {
+          "fold": 2,
+          "train_size": 175,
+          "val_size": 85,
+          "rmse": 1.103,
+          "mae": 0.827,
+          "best_iteration": 61
+        },
+        {
+          "fold": 3,
+          "train_size": 260,
+          "val_size": 85,
+          "rmse": 0.676,
+          "mae": 0.582,
+          "best_iteration": 96
+        },
+        {
+          "fold": 4,
+          "train_size": 345,
+          "val_size": 85,
+          "rmse": 0.906,
+          "mae": 0.726,
+          "best_iteration": 90
+        },
+        {
+          "fold": 5,
+          "train_size": 430,
+          "val_size": 85,
+          "rmse": 1.154,
+          "mae": 0.888,
+          "best_iteration": 64
+        }
+      ],
+      "top_features": [
+        [
+          "humidity",
+          837.89
+        ],
+        [
+          "rolling_mean_7",
+          529.51
+        ],
+        [
+          "precip_rolling_7",
+          161.13
+        ],
+        [
+          "rolling_mean_14",
+          142.62
+        ],
+        [
+          "day_of_week",
+          142.53
+        ],
+        [
+          "temp_max",
+          142.35
+        ],
+        [
+          "rolling_std_7",
+          87.93
+        ],
+        [
+          "rolling_std_14",
+          67.0
+        ],
+        [
+          "precip_rolling_14",
+          61.32
+        ],
+        [
+          "lag_1",
+          58.81
+        ]
+      ]
+    },
+    "diabetes": {
+      "avg_rmse": 0.726,
+      "avg_mae": 0.594,
+      "data_points": 492,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 82,
+          "val_size": 82,
+          "rmse": 0.666,
+          "mae": 0.538,
+          "best_iteration": 50
+        },
+        {
+          "fold": 2,
+          "train_size": 164,
+          "val_size": 82,
+          "rmse": 0.657,
+          "mae": 0.551,
+          "best_iteration": 16
+        },
+        {
+          "fold": 3,
+          "train_size": 246,
+          "val_size": 82,
+          "rmse": 0.876,
+          "mae": 0.692,
+          "best_iteration": 32
+        },
+        {
+          "fold": 4,
+          "train_size": 328,
+          "val_size": 82,
+          "rmse": 0.731,
+          "mae": 0.612,
+          "best_iteration": 38
+        },
+        {
+          "fold": 5,
+          "train_size": 410,
+          "val_size": 82,
+          "rmse": 0.702,
+          "mae": 0.579,
+          "best_iteration": 18
+        }
+      ],
+      "top_features": [
+        [
+          "rolling_std_7",
+          45.46
+        ],
+        [
+          "rolling_mean_7",
+          40.78
+        ],
+        [
+          "temp_mean",
+          21.43
+        ],
+        [
+          "rolling_sum_7",
+          12.98
+        ],
+        [
+          "temp_rolling_7",
+          11.17
+        ],
+        [
+          "day_of_week",
+          7.41
+        ],
+        [
+          "humidity",
+          7.38
+        ],
+        [
+          "temp_min",
+          6.69
+        ],
+        [
+          "precipitation",
+          5.91
+        ],
+        [
+          "lag_14",
+          5.42
+        ]
+      ]
+    },
+    "diare": {
+      "avg_rmse": 1.409,
+      "avg_mae": 1.046,
+      "data_points": 516,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 86,
+          "val_size": 86,
+          "rmse": 2.191,
+          "mae": 1.471,
+          "best_iteration": 260
+        },
+        {
+          "fold": 2,
+          "train_size": 172,
+          "val_size": 86,
+          "rmse": 1.355,
+          "mae": 1.06,
+          "best_iteration": 80
+        },
+        {
+          "fold": 3,
+          "train_size": 258,
+          "val_size": 86,
+          "rmse": 1.052,
+          "mae": 0.856,
+          "best_iteration": 65
+        },
+        {
+          "fold": 4,
+          "train_size": 344,
+          "val_size": 86,
+          "rmse": 1.146,
+          "mae": 0.878,
+          "best_iteration": 50
+        },
+        {
+          "fold": 5,
+          "train_size": 430,
+          "val_size": 86,
+          "rmse": 1.302,
+          "mae": 0.967,
+          "best_iteration": 207
+        }
+      ],
+      "top_features": [
+        [
+          "precipitation",
+          2056.08
+        ],
+        [
+          "rain",
+          544.59
+        ],
+        [
+          "rolling_mean_7",
+          347.76
+        ],
+        [
+          "humidity_rolling_7",
+          240.87
+        ],
+        [
+          "day_of_week",
+          191.89
+        ],
+        [
+          "temp_mean",
+          190.23
+        ],
+        [
+          "precip_lag_7",
+          127.9
+        ],
+        [
+          "day_of_month",
+          107.55
+        ],
+        [
+          "lag_7",
+          103.29
+        ],
+        [
+          "precip_lag_14",
+          101.88
+        ]
+      ]
+    },
+    "hipertensi": {
+      "avg_rmse": 0.948,
+      "avg_mae": 0.759,
+      "data_points": 573,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 98,
+          "val_size": 95,
+          "rmse": 0.972,
+          "mae": 0.781,
+          "best_iteration": 64
+        },
+        {
+          "fold": 2,
+          "train_size": 193,
+          "val_size": 95,
+          "rmse": 0.834,
+          "mae": 0.707,
+          "best_iteration": 80
+        },
+        {
+          "fold": 3,
+          "train_size": 288,
+          "val_size": 95,
+          "rmse": 0.999,
+          "mae": 0.808,
+          "best_iteration": 55
+        },
+        {
+          "fold": 4,
+          "train_size": 383,
+          "val_size": 95,
+          "rmse": 1.052,
+          "mae": 0.803,
+          "best_iteration": 29
+        },
+        {
+          "fold": 5,
+          "train_size": 478,
+          "val_size": 95,
+          "rmse": 0.883,
+          "mae": 0.696,
+          "best_iteration": 69
+        }
+      ],
+      "top_features": [
+        [
+          "day_of_week",
+          567.34
+        ],
+        [
+          "temp_max",
+          377.19
+        ],
+        [
+          "rolling_mean_7",
+          358.93
+        ],
+        [
+          "rolling_std_7",
+          106.89
+        ],
+        [
+          "precip_lag_21",
+          88.76
+        ],
+        [
+          "humidity_lag_7",
+          88.27
+        ],
+        [
+          "rolling_std_14",
+          81.83
+        ],
+        [
+          "is_weekend",
+          70.04
+        ],
+        [
+          "lag_1",
+          61.15
+        ],
+        [
+          "rolling_sum_7",
+          60.54
+        ]
+      ]
+    },
+    "ispa": {
+      "avg_rmse": 1.747,
+      "avg_mae": 1.282,
+      "data_points": 584,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 99,
+          "val_size": 97,
+          "rmse": 1.414,
+          "mae": 1.106,
+          "best_iteration": 75
+        },
+        {
+          "fold": 2,
+          "train_size": 196,
+          "val_size": 97,
+          "rmse": 2.214,
+          "mae": 1.578,
+          "best_iteration": 76
+        },
+        {
+          "fold": 3,
+          "train_size": 293,
+          "val_size": 97,
+          "rmse": 1.945,
+          "mae": 1.322,
+          "best_iteration": 97
+        },
+        {
+          "fold": 4,
+          "train_size": 390,
+          "val_size": 97,
+          "rmse": 1.322,
+          "mae": 0.987,
+          "best_iteration": 305
+        },
+        {
+          "fold": 5,
+          "train_size": 487,
+          "val_size": 97,
+          "rmse": 1.842,
+          "mae": 1.415,
+          "best_iteration": 30
+        }
+      ],
+      "top_features": [
+        [
+          "temp_mean",
+          2440.73
+        ],
+        [
+          "rolling_mean_7",
+          2090.98
+        ],
+        [
+          "rolling_std_7",
+          1332.99
+        ],
+        [
+          "rolling_mean_14",
+          915.93
+        ],
+        [
+          "rolling_std_14",
+          885.47
+        ],
+        [
+          "humidity",
+          856.19
+        ],
+        [
+          "day_of_week",
+          855.08
+        ],
+        [
+          "temp_max",
+          752.18
+        ],
+        [
+          "precipitation",
+          609.2
+        ],
+        [
+          "temp_rolling_7",
+          584.11
+        ]
+      ]
+    },
+    "malaria": {
+      "avg_rmse": 1.364,
+      "avg_mae": 1.025,
+      "data_points": 345,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 60,
+          "val_size": 57,
+          "rmse": 1.942,
+          "mae": 1.381,
+          "best_iteration": 35
+        },
+        {
+          "fold": 2,
+          "train_size": 117,
+          "val_size": 57,
+          "rmse": 1.769,
+          "mae": 1.326,
+          "best_iteration": 39
+        },
+        {
+          "fold": 3,
+          "train_size": 174,
+          "val_size": 57,
+          "rmse": 1.008,
+          "mae": 0.743,
+          "best_iteration": 90
+        },
+        {
+          "fold": 4,
+          "train_size": 231,
+          "val_size": 57,
+          "rmse": 0.834,
+          "mae": 0.645,
+          "best_iteration": 168
+        },
+        {
+          "fold": 5,
+          "train_size": 288,
+          "val_size": 57,
+          "rmse": 1.266,
+          "mae": 1.031,
+          "best_iteration": 148
+        }
+      ],
+      "top_features": [
+        [
+          "precipitation",
+          2234.35
+        ],
+        [
+          "rolling_std_7",
+          1176.97
+        ],
+        [
+          "rain",
+          577.57
+        ],
+        [
+          "rolling_mean_14",
+          449.12
+        ],
+        [
+          "rolling_std_14",
+          411.22
+        ],
+        [
+          "temp_mean",
+          320.2
+        ],
+        [
+          "rolling_mean_7",
+          313.15
+        ],
+        [
+          "humidity",
+          278.46
+        ],
+        [
+          "day_of_month",
+          156.54
+        ],
+        [
+          "precip_lag_21",
+          155.09
+        ]
+      ]
+    },
+    "stunting": {
+      "avg_rmse": 0.73,
+      "avg_mae": 0.593,
+      "data_points": 438,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 73,
+          "val_size": 73,
+          "rmse": 0.791,
+          "mae": 0.659,
+          "best_iteration": 23
+        },
+        {
+          "fold": 2,
+          "train_size": 146,
+          "val_size": 73,
+          "rmse": 0.884,
+          "mae": 0.683,
+          "best_iteration": 50
+        },
+        {
+          "fold": 3,
+          "train_size": 219,
+          "val_size": 73,
+          "rmse": 0.665,
+          "mae": 0.569,
+          "best_iteration": 24
+        },
+        {
+          "fold": 4,
+          "train_size": 292,
+          "val_size": 73,
+          "rmse": 0.653,
+          "mae": 0.533,
+          "best_iteration": 46
+        },
+        {
+          "fold": 5,
+          "train_size": 365,
+          "val_size": 73,
+          "rmse": 0.657,
+          "mae": 0.521,
+          "best_iteration": 54
+        }
+      ],
+      "top_features": [
+        [
+          "rolling_mean_7",
+          132.01
+        ],
+        [
+          "rolling_mean_14",
+          104.3
+        ],
+        [
+          "precipitation",
+          86.26
+        ],
+        [
+          "precip_lag_21",
+          64.07
+        ],
+        [
+          "temp_mean",
+          61.74
+        ],
+        [
+          "day_of_week",
+          50.82
+        ],
+        [
+          "windspeed",
+          47.15
+        ],
+        [
+          "day_of_month",
+          39.94
+        ],
+        [
+          "temp_rolling_7",
+          31.23
+        ],
+        [
+          "rolling_std_14",
+          30.05
+        ]
+      ]
+    },
+    "tbc": {
+      "avg_rmse": 0.659,
+      "avg_mae": 0.539,
+      "data_points": 376,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 66,
+          "val_size": 62,
+          "rmse": 0.715,
+          "mae": 0.632,
+          "best_iteration": 18
+        },
+        {
+          "fold": 2,
+          "train_size": 128,
+          "val_size": 62,
+          "rmse": 0.54,
+          "mae": 0.43,
+          "best_iteration": 89
+        },
+        {
+          "fold": 3,
+          "train_size": 190,
+          "val_size": 62,
+          "rmse": 0.638,
+          "mae": 0.521,
+          "best_iteration": 92
+        },
+        {
+          "fold": 4,
+          "train_size": 252,
+          "val_size": 62,
+          "rmse": 0.695,
+          "mae": 0.56,
+          "best_iteration": 117
+        },
+        {
+          "fold": 5,
+          "train_size": 314,
+          "val_size": 62,
+          "rmse": 0.707,
+          "mae": 0.552,
+          "best_iteration": 110
+        }
+      ],
+      "top_features": [
+        [
+          "rolling_mean_7",
+          83.79
+        ],
+        [
+          "temp_min",
+          29.13
+        ],
+        [
+          "precip_lag_21",
+          27.39
+        ],
+        [
+          "humidity",
+          25.26
+        ],
+        [
+          "day_of_week",
+          21.8
+        ],
+        [
+          "precip_lag_7",
+          18.94
+        ],
+        [
+          "lag_1",
+          15.0
+        ],
+        [
+          "temp_rolling_7",
+          14.78
+        ],
+        [
+          "rolling_mean_14",
+          14.75
+        ],
+        [
+          "temp_mean",
+          13.74
+        ]
+      ]
+    }
+  },
+  "items": {
+    "albendazole": {
+      "avg_rmse": 1.584,
+      "avg_mae": 1.216,
+      "data_points": 568,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 98,
+          "val_size": 94,
+          "rmse": 1.917,
+          "mae": 1.336,
+          "best_iteration": 65
+        },
+        {
+          "fold": 2,
+          "train_size": 192,
+          "val_size": 94,
+          "rmse": 1.353,
+          "mae": 0.993,
+          "best_iteration": 45
+        },
+        {
+          "fold": 3,
+          "train_size": 286,
+          "val_size": 94,
+          "rmse": 1.29,
+          "mae": 1.05,
+          "best_iteration": 50
+        },
+        {
+          "fold": 4,
+          "train_size": 380,
+          "val_size": 94,
+          "rmse": 1.302,
+          "mae": 1.071,
+          "best_iteration": 60
+        },
+        {
+          "fold": 5,
+          "train_size": 474,
+          "val_size": 94,
+          "rmse": 2.06,
+          "mae": 1.631,
+          "best_iteration": 112
+        }
+      ],
+      "top_features": [
+        [
+          "rolling_mean_7",
+          922.96
+        ],
+        [
+          "precipitation",
+          900.16
+        ],
+        [
+          "rain",
+          234.55
+        ],
+        [
+          "rolling_sum_7",
+          227.88
+        ],
+        [
+          "rolling_std_7",
+          204.95
+        ],
+        [
+          "precip_rolling_7",
+          191.18
+        ],
+        [
+          "precip_lag_7",
+          160.17
+        ],
+        [
+          "rolling_mean_14",
+          147.77
+        ],
+        [
+          "temp_min",
+          130.6
+        ],
+        [
+          "windspeed",
+          112.47
+        ]
+      ]
+    },
+    "amlodipine": {
+      "avg_rmse": 1.695,
+      "avg_mae": 1.308,
+      "data_points": 599,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 104,
+          "val_size": 99,
+          "rmse": 1.822,
+          "mae": 1.384,
+          "best_iteration": 41
+        },
+        {
+          "fold": 2,
+          "train_size": 203,
+          "val_size": 99,
+          "rmse": 1.479,
+          "mae": 1.168,
+          "best_iteration": 66
+        },
+        {
+          "fold": 3,
+          "train_size": 302,
+          "val_size": 99,
+          "rmse": 1.842,
+          "mae": 1.378,
+          "best_iteration": 76
+        },
+        {
+          "fold": 4,
+          "train_size": 401,
+          "val_size": 99,
+          "rmse": 1.918,
+          "mae": 1.448,
+          "best_iteration": 79
+        },
+        {
+          "fold": 5,
+          "train_size": 500,
+          "val_size": 99,
+          "rmse": 1.415,
+          "mae": 1.161,
+          "best_iteration": 77
+        }
+      ],
+      "top_features": [
+        [
+          "rolling_mean_7",
+          2347.27
+        ],
+        [
+          "rolling_std_14",
+          1200.51
+        ],
+        [
+          "rolling_std_7",
+          1159.29
+        ],
+        [
+          "windspeed",
+          730.69
+        ],
+        [
+          "rolling_mean_14",
+          580.33
+        ],
+        [
+          "lag_1",
+          541.69
+        ],
+        [
+          "day_of_week",
+          532.27
+        ],
+        [
+          "precipitation",
+          452.33
+        ],
+        [
+          "precip_rolling_7",
+          428.81
+        ],
+        [
+          "precip_lag_21",
+          413.02
+        ]
+      ]
+    },
+    "amoxicillin": {
+      "avg_rmse": 3.39,
+      "avg_mae": 2.59,
+      "data_points": 611,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 106,
+          "val_size": 101,
+          "rmse": 3.103,
+          "mae": 2.426,
+          "best_iteration": 34
+        },
+        {
+          "fold": 2,
+          "train_size": 207,
+          "val_size": 101,
+          "rmse": 3.358,
+          "mae": 2.574,
+          "best_iteration": 63
+        },
+        {
+          "fold": 3,
+          "train_size": 308,
+          "val_size": 101,
+          "rmse": 3.728,
+          "mae": 2.814,
+          "best_iteration": 85
+        },
+        {
+          "fold": 4,
+          "train_size": 409,
+          "val_size": 101,
+          "rmse": 3.757,
+          "mae": 2.691,
+          "best_iteration": 50
+        },
+        {
+          "fold": 5,
+          "train_size": 510,
+          "val_size": 101,
+          "rmse": 3.002,
+          "mae": 2.445,
+          "best_iteration": 85
+        }
+      ],
+      "top_features": [
+        [
+          "rolling_mean_7",
+          10521.31
+        ],
+        [
+          "temp_mean",
+          5970.58
+        ],
+        [
+          "humidity",
+          4071.45
+        ],
+        [
+          "rolling_std_7",
+          4069.88
+        ],
+        [
+          "rolling_std_14",
+          3145.96
+        ],
+        [
+          "precipitation",
+          2050.8
+        ],
+        [
+          "rolling_mean_14",
+          1701.13
+        ],
+        [
+          "lag_1",
+          1576.47
+        ],
+        [
+          "day_of_week",
+          1572.14
+        ],
+        [
+          "humidity_rolling_7",
+          1493.43
+        ]
+      ]
+    },
+    "antimalaria": {
+      "avg_rmse": 2.268,
+      "avg_mae": 1.591,
+      "data_points": 561,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 96,
+          "val_size": 93,
+          "rmse": 3.659,
+          "mae": 2.529,
+          "best_iteration": 25
+        },
+        {
+          "fold": 2,
+          "train_size": 189,
+          "val_size": 93,
+          "rmse": 1.528,
+          "mae": 1.285,
+          "best_iteration": 63
+        },
+        {
+          "fold": 3,
+          "train_size": 282,
+          "val_size": 93,
+          "rmse": 1.373,
+          "mae": 1.02,
+          "best_iteration": 21
+        },
+        {
+          "fold": 4,
+          "train_size": 375,
+          "val_size": 93,
+          "rmse": 1.977,
+          "mae": 1.335,
+          "best_iteration": 54
+        },
+        {
+          "fold": 5,
+          "train_size": 468,
+          "val_size": 93,
+          "rmse": 2.803,
+          "mae": 1.788,
+          "best_iteration": 250
+        }
+      ],
+      "top_features": [
+        [
+          "precipitation",
+          2686.41
+        ],
+        [
+          "rolling_mean_7",
+          1397.01
+        ],
+        [
+          "rain",
+          700.24
+        ],
+        [
+          "rolling_std_7",
+          488.25
+        ],
+        [
+          "rolling_mean_14",
+          350.27
+        ],
+        [
+          "rolling_sum_7",
+          297.32
+        ],
+        [
+          "month",
+          73.79
+        ],
+        [
+          "rolling_sum_14",
+          70.7
+        ],
+        [
+          "rolling_std_14",
+          66.96
+        ],
+        [
+          "temp_max",
+          62.78
+        ]
+      ]
+    },
+    "ibuprofen": {
+      "avg_rmse": 4.985,
+      "avg_mae": 3.428,
+      "data_points": 611,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 106,
+          "val_size": 101,
+          "rmse": 8.162,
+          "mae": 5.496,
+          "best_iteration": 134
+        },
+        {
+          "fold": 2,
+          "train_size": 207,
+          "val_size": 101,
+          "rmse": 5.168,
+          "mae": 3.698,
+          "best_iteration": 39
+        },
+        {
+          "fold": 3,
+          "train_size": 308,
+          "val_size": 101,
+          "rmse": 2.475,
+          "mae": 1.905,
+          "best_iteration": 41
+        },
+        {
+          "fold": 4,
+          "train_size": 409,
+          "val_size": 101,
+          "rmse": 4.105,
+          "mae": 2.626,
+          "best_iteration": 41
+        },
+        {
+          "fold": 5,
+          "train_size": 510,
+          "val_size": 101,
+          "rmse": 5.014,
+          "mae": 3.414,
+          "best_iteration": 46
+        }
+      ],
+      "top_features": [
+        [
+          "precipitation",
+          27194.87
+        ],
+        [
+          "rolling_mean_7",
+          15036.37
+        ],
+        [
+          "rain",
+          8509.81
+        ],
+        [
+          "rolling_std_7",
+          4818.06
+        ],
+        [
+          "humidity",
+          4304.08
+        ],
+        [
+          "rolling_sum_7",
+          2203.15
+        ],
+        [
+          "rolling_mean_14",
+          2026.02
+        ],
+        [
+          "day_of_week",
+          1154.7
+        ],
+        [
+          "humidity_rolling_7",
+          1051.86
+        ],
+        [
+          "temp_max",
+          914.42
+        ]
+      ]
+    },
+    "infus set": {
+      "avg_rmse": 4.831,
+      "avg_mae": 3.48,
+      "data_points": 604,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 104,
+          "val_size": 100,
+          "rmse": 9.515,
+          "mae": 6.599,
+          "best_iteration": 24
+        },
+        {
+          "fold": 2,
+          "train_size": 204,
+          "val_size": 100,
+          "rmse": 4.258,
+          "mae": 3.155,
+          "best_iteration": 83
+        },
+        {
+          "fold": 3,
+          "train_size": 304,
+          "val_size": 100,
+          "rmse": 2.504,
+          "mae": 1.824,
+          "best_iteration": 60
+        },
+        {
+          "fold": 4,
+          "train_size": 404,
+          "val_size": 100,
+          "rmse": 3.403,
+          "mae": 2.546,
+          "best_iteration": 35
+        },
+        {
+          "fold": 5,
+          "train_size": 504,
+          "val_size": 100,
+          "rmse": 4.473,
+          "mae": 3.278,
+          "best_iteration": 121
+        }
+      ],
+      "top_features": [
+        [
+          "precipitation",
+          29352.79
+        ],
+        [
+          "humidity",
+          8791.43
+        ],
+        [
+          "rain",
+          8296.47
+        ],
+        [
+          "rolling_mean_7",
+          7506.18
+        ],
+        [
+          "rolling_std_7",
+          5151.83
+        ],
+        [
+          "rolling_std_14",
+          2617.13
+        ],
+        [
+          "rolling_mean_14",
+          2531.4
+        ],
+        [
+          "temp_mean",
+          1282.92
+        ],
+        [
+          "temp_max",
+          1005.99
+        ],
+        [
+          "lag_1",
+          989.3
+        ]
+      ]
+    },
+    "kapas alkohol": {
+      "avg_rmse": 1.006,
+      "avg_mae": 0.823,
+      "data_points": 611,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 106,
+          "val_size": 101,
+          "rmse": 1.007,
+          "mae": 0.827,
+          "best_iteration": 26
+        },
+        {
+          "fold": 2,
+          "train_size": 207,
+          "val_size": 101,
+          "rmse": 0.979,
+          "mae": 0.799,
+          "best_iteration": 17
+        },
+        {
+          "fold": 3,
+          "train_size": 308,
+          "val_size": 101,
+          "rmse": 1.081,
+          "mae": 0.882,
+          "best_iteration": 27
+        },
+        {
+          "fold": 4,
+          "train_size": 409,
+          "val_size": 101,
+          "rmse": 1.049,
+          "mae": 0.875,
+          "best_iteration": 25
+        },
+        {
+          "fold": 5,
+          "train_size": 510,
+          "val_size": 101,
+          "rmse": 0.914,
+          "mae": 0.733,
+          "best_iteration": 74
+        }
+      ],
+      "top_features": [
+        [
+          "rolling_mean_7",
+          734.82
+        ],
+        [
+          "rolling_std_7",
+          255.8
+        ],
+        [
+          "rolling_std_14",
+          235.83
+        ],
+        [
+          "windspeed",
+          210.69
+        ],
+        [
+          "precipitation",
+          197.65
+        ],
+        [
+          "temp_min",
+          177.18
+        ],
+        [
+          "precip_lag_14",
+          163.04
+        ],
+        [
+          "precip_rolling_7",
+          145.71
+        ],
+        [
+          "lag_3",
+          144.9
+        ],
+        [
+          "precip_lag_7",
+          138.09
+        ]
+      ]
+    },
+    "masker medis": {
+      "avg_rmse": 3.234,
+      "avg_mae": 2.502,
+      "data_points": 610,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 105,
+          "val_size": 101,
+          "rmse": 3.098,
+          "mae": 2.514,
+          "best_iteration": 15
+        },
+        {
+          "fold": 2,
+          "train_size": 206,
+          "val_size": 101,
+          "rmse": 3.532,
+          "mae": 2.554,
+          "best_iteration": 29
+        },
+        {
+          "fold": 3,
+          "train_size": 307,
+          "val_size": 101,
+          "rmse": 3.033,
+          "mae": 2.389,
+          "best_iteration": 42
+        },
+        {
+          "fold": 4,
+          "train_size": 408,
+          "val_size": 101,
+          "rmse": 3.433,
+          "mae": 2.556,
+          "best_iteration": 42
+        },
+        {
+          "fold": 5,
+          "train_size": 509,
+          "val_size": 101,
+          "rmse": 3.073,
+          "mae": 2.495,
+          "best_iteration": 69
+        }
+      ],
+      "top_features": [
+        [
+          "rolling_mean_7",
+          4204.17
+        ],
+        [
+          "rolling_std_7",
+          1817.89
+        ],
+        [
+          "day_of_week",
+          1020.88
+        ],
+        [
+          "temp_mean",
+          945.06
+        ],
+        [
+          "humidity",
+          851.9
+        ],
+        [
+          "humidity_rolling_7",
+          709.72
+        ],
+        [
+          "rolling_std_14",
+          680.07
+        ],
+        [
+          "temp_rolling_7",
+          673.26
+        ],
+        [
+          "day_of_month",
+          612.66
+        ],
+        [
+          "lag_1",
+          564.41
+        ]
+      ]
+    },
+    "metformin": {
+      "avg_rmse": 1.317,
+      "avg_mae": 1.036,
+      "data_points": 582,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 97,
+          "val_size": 97,
+          "rmse": 1.375,
+          "mae": 1.1,
+          "best_iteration": 20
+        },
+        {
+          "fold": 2,
+          "train_size": 194,
+          "val_size": 97,
+          "rmse": 1.24,
+          "mae": 0.949,
+          "best_iteration": 32
+        },
+        {
+          "fold": 3,
+          "train_size": 291,
+          "val_size": 97,
+          "rmse": 1.389,
+          "mae": 1.113,
+          "best_iteration": 105
+        },
+        {
+          "fold": 4,
+          "train_size": 388,
+          "val_size": 97,
+          "rmse": 1.187,
+          "mae": 0.962,
+          "best_iteration": 41
+        },
+        {
+          "fold": 5,
+          "train_size": 485,
+          "val_size": 97,
+          "rmse": 1.396,
+          "mae": 1.056,
+          "best_iteration": 50
+        }
+      ],
+      "top_features": [
+        [
+          "rolling_mean_7",
+          834.94
+        ],
+        [
+          "rolling_std_7",
+          247.71
+        ],
+        [
+          "precip_lag_7",
+          191.33
+        ],
+        [
+          "windspeed",
+          190.58
+        ],
+        [
+          "precip_rolling_7",
+          181.01
+        ],
+        [
+          "lag_3",
+          177.77
+        ],
+        [
+          "temp_rolling_7",
+          165.65
+        ],
+        [
+          "day_of_week",
+          137.93
+        ],
+        [
+          "day_of_month",
+          127.51
+        ],
+        [
+          "lag_1",
+          127.03
+        ]
+      ]
+    },
+    "oralit": {
+      "avg_rmse": 2.199,
+      "avg_mae": 1.658,
+      "data_points": 611,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 106,
+          "val_size": 101,
+          "rmse": 2.313,
+          "mae": 1.801,
+          "best_iteration": 35
+        },
+        {
+          "fold": 2,
+          "train_size": 207,
+          "val_size": 101,
+          "rmse": 2.504,
+          "mae": 1.808,
+          "best_iteration": 35
+        },
+        {
+          "fold": 3,
+          "train_size": 308,
+          "val_size": 101,
+          "rmse": 1.949,
+          "mae": 1.377,
+          "best_iteration": 55
+        },
+        {
+          "fold": 4,
+          "train_size": 409,
+          "val_size": 101,
+          "rmse": 1.875,
+          "mae": 1.507,
+          "best_iteration": 84
+        },
+        {
+          "fold": 5,
+          "train_size": 510,
+          "val_size": 101,
+          "rmse": 2.352,
+          "mae": 1.797,
+          "best_iteration": 65
+        }
+      ],
+      "top_features": [
+        [
+          "rolling_mean_7",
+          3502.73
+        ],
+        [
+          "precipitation",
+          1839.3
+        ],
+        [
+          "rolling_std_7",
+          1451.1
+        ],
+        [
+          "windspeed",
+          585.91
+        ],
+        [
+          "rain",
+          582.48
+        ],
+        [
+          "rolling_sum_7",
+          579.9
+        ],
+        [
+          "rolling_mean_14",
+          503.46
+        ],
+        [
+          "temp_mean",
+          475.34
+        ],
+        [
+          "temp_max",
+          428.43
+        ],
+        [
+          "day_of_month",
+          420.9
+        ]
+      ]
+    },
+    "paracetamol": {
+      "avg_rmse": 6.895,
+      "avg_mae": 5.242,
+      "data_points": 611,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 106,
+          "val_size": 101,
+          "rmse": 9.903,
+          "mae": 7.116,
+          "best_iteration": 44
+        },
+        {
+          "fold": 2,
+          "train_size": 207,
+          "val_size": 101,
+          "rmse": 7.132,
+          "mae": 5.458,
+          "best_iteration": 95
+        },
+        {
+          "fold": 3,
+          "train_size": 308,
+          "val_size": 101,
+          "rmse": 5.814,
+          "mae": 4.577,
+          "best_iteration": 35
+        },
+        {
+          "fold": 4,
+          "train_size": 409,
+          "val_size": 101,
+          "rmse": 6.015,
+          "mae": 4.549,
+          "best_iteration": 109
+        },
+        {
+          "fold": 5,
+          "train_size": 510,
+          "val_size": 101,
+          "rmse": 5.612,
+          "mae": 4.508,
+          "best_iteration": 44
+        }
+      ],
+      "top_features": [
+        [
+          "precipitation",
+          68714.31
+        ],
+        [
+          "humidity",
+          27305.28
+        ],
+        [
+          "rolling_std_7",
+          20511.74
+        ],
+        [
+          "rain",
+          17306.51
+        ],
+        [
+          "rolling_mean_7",
+          16432.26
+        ],
+        [
+          "rolling_std_14",
+          13127.49
+        ],
+        [
+          "day_of_week",
+          10222.99
+        ],
+        [
+          "rolling_mean_14",
+          7980.06
+        ],
+        [
+          "temp_max",
+          5024.96
+        ],
+        [
+          "lag_3",
+          5022.64
+        ]
+      ]
+    },
+    "salep kulit": {
+      "avg_rmse": 2.432,
+      "avg_mae": 1.846,
+      "data_points": 595,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 100,
+          "val_size": 99,
+          "rmse": 3.669,
+          "mae": 2.484,
+          "best_iteration": 80
+        },
+        {
+          "fold": 2,
+          "train_size": 199,
+          "val_size": 99,
+          "rmse": 2.341,
+          "mae": 1.898,
+          "best_iteration": 33
+        },
+        {
+          "fold": 3,
+          "train_size": 298,
+          "val_size": 99,
+          "rmse": 1.572,
+          "mae": 1.238,
+          "best_iteration": 49
+        },
+        {
+          "fold": 4,
+          "train_size": 397,
+          "val_size": 99,
+          "rmse": 1.97,
+          "mae": 1.531,
+          "best_iteration": 187
+        },
+        {
+          "fold": 5,
+          "train_size": 496,
+          "val_size": 99,
+          "rmse": 2.606,
+          "mae": 2.08,
+          "best_iteration": 85
+        }
+      ],
+      "top_features": [
+        [
+          "humidity",
+          2797.23
+        ],
+        [
+          "rolling_mean_7",
+          2379.44
+        ],
+        [
+          "precipitation",
+          2324.97
+        ],
+        [
+          "rolling_mean_14",
+          1048.19
+        ],
+        [
+          "rolling_std_7",
+          666.21
+        ],
+        [
+          "rolling_sum_7",
+          655.25
+        ],
+        [
+          "day_of_week",
+          583.4
+        ],
+        [
+          "precip_rolling_14",
+          535.36
+        ],
+        [
+          "temp_rolling_7",
+          534.09
+        ],
+        [
+          "rain",
+          315.49
+        ]
+      ]
+    },
+    "sarung tangan": {
+      "avg_rmse": 1.202,
+      "avg_mae": 0.958,
+      "data_points": 610,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 105,
+          "val_size": 101,
+          "rmse": 1.241,
+          "mae": 1.002,
+          "best_iteration": 35
+        },
+        {
+          "fold": 2,
+          "train_size": 206,
+          "val_size": 101,
+          "rmse": 1.169,
+          "mae": 0.933,
+          "best_iteration": 19
+        },
+        {
+          "fold": 3,
+          "train_size": 307,
+          "val_size": 101,
+          "rmse": 1.105,
+          "mae": 0.868,
+          "best_iteration": 70
+        },
+        {
+          "fold": 4,
+          "train_size": 408,
+          "val_size": 101,
+          "rmse": 1.252,
+          "mae": 1.014,
+          "best_iteration": 17
+        },
+        {
+          "fold": 5,
+          "train_size": 509,
+          "val_size": 101,
+          "rmse": 1.242,
+          "mae": 0.975,
+          "best_iteration": 13
+        }
+      ],
+      "top_features": [
+        [
+          "rolling_mean_7",
+          585.92
+        ],
+        [
+          "rolling_std_7",
+          268.46
+        ],
+        [
+          "lag_3",
+          164.07
+        ],
+        [
+          "humidity",
+          157.39
+        ],
+        [
+          "temp_max",
+          142.88
+        ],
+        [
+          "precip_lag_14",
+          136.43
+        ],
+        [
+          "lag_1",
+          120.36
+        ],
+        [
+          "rolling_mean_14",
+          114.0
+        ],
+        [
+          "precip_lag_21",
+          106.02
+        ],
+        [
+          "precipitation",
+          103.4
+        ]
+      ]
+    },
+    "vitamin a": {
+      "avg_rmse": 1.437,
+      "avg_mae": 1.133,
+      "data_points": 607,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_size": 102,
+          "val_size": 101,
+          "rmse": 1.805,
+          "mae": 1.381,
+          "best_iteration": 38
+        },
+        {
+          "fold": 2,
+          "train_size": 203,
+          "val_size": 101,
+          "rmse": 1.286,
+          "mae": 0.974,
+          "best_iteration": 12
+        },
+        {
+          "fold": 3,
+          "train_size": 304,
+          "val_size": 101,
+          "rmse": 1.262,
+          "mae": 1.015,
+          "best_iteration": 56
+        },
+        {
+          "fold": 4,
+          "train_size": 405,
+          "val_size": 101,
+          "rmse": 1.447,
+          "mae": 1.193,
+          "best_iteration": 60
+        },
+        {
+          "fold": 5,
+          "train_size": 506,
+          "val_size": 101,
+          "rmse": 1.384,
+          "mae": 1.101,
+          "best_iteration": 92
+        }
+      ],
+      "top_features": [
+        [
+          "rolling_mean_7",
+          669.05
+        ],
+        [
+          "rolling_mean_14",
+          420.95
+        ],
+        [
+          "rolling_std_7",
+          393.19
+        ],
+        [
+          "precip_lag_14",
+          307.39
+        ],
+        [
+          "day_of_week",
+          265.45
+        ],
+        [
+          "precipitation",
+          224.95
+        ],
+        [
+          "lag_1",
+          209.21
+        ],
+        [
+          "windspeed",
+          192.51
+        ],
+        [
+          "temp_min",
+          180.3
+        ],
+        [
+          "precip_lag_21",
+          179.85
+        ]
+      ]
+    }
+  }
+}

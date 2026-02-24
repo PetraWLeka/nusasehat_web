@@ -1,0 +1,561 @@
+{% extends "base.html" %}
+{% block title %}Detail Pemeriksaan — NusaHealth Cloud{% endblock %}
+{% block page_title %}Detail Pemeriksaan{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6" x-data="inspectionViewer()">
+    <div class="card">
+        <div class="flex flex-col gap-6">
+            <!-- Image with AI Highlights -->
+            {% if inspection.image %}
+            <div class="relative">
+                <p class="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                    Gambar Medis
+                    <template x-if="regions.length > 0">
+                        <span class="text-primary-500 normal-case ml-2">— Klik area berwarna untuk detail</span>
+                    </template>
+                </p>
+                <div class="relative inline-block bg-gray-100 rounded-xl overflow-hidden" id="image-container">
+                    <img src="{{ inspection.image.url }}" alt="Gambar pemeriksaan"
+                         class="max-w-full h-auto max-h-[500px] block"
+                         id="inspection-image"
+                         @load="initOverlay()">
+                    <!-- Canvas overlay for bounding box highlights -->
+                    <canvas id="highlight-canvas"
+                            class="absolute top-0 left-0 pointer-events-none"
+                            style="mix-blend-mode: multiply;"></canvas>
+                    <!-- Clickable overlay for region interaction -->
+                    <div id="region-overlays" class="absolute top-0 left-0 w-full h-full"></div>
+                </div>
+
+                <!-- Region legend -->
+                <template x-if="regions.length > 0">
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <template x-for="(region, idx) in regions" :key="idx">
+                            <button @click="highlightRegion(idx)"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border"
+                                    :class="selectedRegion === idx
+                                        ? 'bg-primary-50 border-primary-300 text-primary-700 ring-2 ring-primary-200'
+                                        : severityClass(region.severity)">
+                                <span class="w-2 h-2 rounded-full"
+                                      :class="severityDot(region.severity)"></span>
+                                <span x-text="region.label"></span>
+                            </button>
+                        </template>
+                    </div>
+                </template>
+            </div>
+            {% endif %}
+
+            <!-- Details -->
+            <div class="space-y-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <h2 class="text-lg font-extrabold text-gray-900">{{ inspection.get_inspection_type_display }}</h2>
+                        <span class="badge badge-blue">{{ inspection.model_used }}</span>
+                    </div>
+                    <p class="text-sm text-gray-400">Pasien: <span class="text-gray-600 font-medium">{{ inspection.patient.full_name|default:"Tanpa Pasien" }}</span> &bull; {{ inspection.created_at|date:"d/m/Y H:i" }}</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Diagnosis (parsed from raw_response by JS) -->
+                    <div id="section-diagnosis">
+                        <p class="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Diagnosis AI</p>
+                        <p id="display-diagnosis" class="text-sm text-gray-900 font-semibold">Memuat...</p>
+                    </div>
+
+                    <!-- Confidence bar (populated by JS) -->
+                    <div id="section-confidence" class="hidden">
+                        <p class="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Tingkat Kepercayaan</p>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div id="confidence-bar" class="h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                            <span id="confidence-text" class="text-sm font-bold">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Selected region detail panel -->
+                    <template x-if="selectedRegion !== null && regions[selectedRegion]">
+                        <div class="rounded-xl p-4 border-2 border-primary-200 bg-primary-50/50 transition-all">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="w-2.5 h-2.5 rounded-full"
+                                      :class="severityDot(regions[selectedRegion].severity)"></span>
+                                <p class="text-sm font-bold text-primary-800" x-text="regions[selectedRegion].label"></p>
+                                <span class="text-[0.6875rem] px-2 py-0.5 rounded-full"
+                                      :class="severityBadge(regions[selectedRegion].severity)"
+                                      x-text="severityLabel(regions[selectedRegion].severity)"></span>
+                            </div>
+                            <p class="text-sm text-gray-700 leading-relaxed" x-text="regions[selectedRegion].description"></p>
+                        </div>
+                    </template>
+
+                    <!-- Findings (rendered as markdown by JS) -->
+                    <div>
+                        <p class="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Temuan</p>
+                        <div id="display-findings" class="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-xl p-4 border border-gray-100 ai-content prose-sm">Memuat...</div>
+                    </div>
+
+                    <!-- Recommendations (populated by JS) -->
+                    <div id="section-recommendations" class="hidden">
+                        <p class="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Rekomendasi</p>
+                        <div id="display-recommendations" class="text-sm text-gray-700 leading-relaxed bg-blue-50 rounded-xl p-4 border border-blue-100"></div>
+                    </div>
+
+                    <!-- Lab values table (for lab_report type, populated by JS) -->
+                    <div id="section-lab-values" class="hidden">
+                        <p class="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Nilai Laboratorium</p>
+                        <div class="overflow-x-auto rounded-xl border border-gray-100">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Tes</th>
+                                        <th class="px-4 py-2 text-left">Nilai</th>
+                                        <th class="px-4 py-2 text-left">Satuan</th>
+                                        <th class="px-4 py-2 text-left">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lab-values-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-between">
+        <a href="{% url 'laboratory:main' %}" class="btn-secondary">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            Kembali
+        </a>
+        {% if request.user.role == 'admin' %}
+        <form method="post" action="{% url 'laboratory:delete' inspection.pk %}" onsubmit="return confirm('Hapus pemeriksaan ini?')">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                Hapus
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% block extra_head_detail %}
+<style>
+    .ai-content h1, .ai-content h2, .ai-content h3 { font-weight: 700; margin-top: 0.75em; margin-bottom: 0.25em; }
+    .ai-content h1 { font-size: 1.1em; }
+    .ai-content h2 { font-size: 1em; }
+    .ai-content h3 { font-size: 0.95em; }
+    .ai-content p { margin-bottom: 0.5em; }
+    .ai-content ul, .ai-content ol { padding-left: 1.5em; margin-bottom: 0.5em; }
+    .ai-content ul { list-style-type: disc; }
+    .ai-content ol { list-style-type: decimal; }
+    .ai-content li { margin-bottom: 0.2em; }
+    .ai-content strong { font-weight: 700; }
+    .ai-content code { background: rgba(0,0,0,0.05); padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em; }
+    .ai-content pre { background: rgba(0,0,0,0.05); padding: 0.75em; border-radius: 6px; overflow-x: auto; }
+</style>
+{% endblock %}
+
+{{ inspection.raw_response|json_script:"inspection-raw-data" }}
+
+<script>
+// Parse and display structured inspection data
+(function() {
+    let data = {};
+    try {
+        const rawEl = document.getElementById('inspection-raw-data');
+        if (rawEl) {
+            data = JSON.parse(rawEl.textContent);
+        }
+    } catch (e) {
+        console.warn('Failed to parse raw_response:', e);
+    }
+
+    // ── Helpers ──────────────────────────────────────
+
+    // Strip markdown code-block wrappers and extract JSON text
+    function stripCodeBlock(text) {
+        if (!text || typeof text !== 'string') return text || '';
+        let t = text.trim();
+        if (t.startsWith('```')) {
+            const lines = t.split('\n');
+            if (lines[0].startsWith('```')) lines.shift();
+            if (lines.length && lines[lines.length - 1].trim() === '```') lines.pop();
+            t = lines.join('\n').trim();
+        }
+        return t;
+    }
+
+    // Extract a JSON string value using regex (handles truncated JSON)
+    function regexExtractString(text, key) {
+        const re = new RegExp('"' + key + '"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"');
+        const m = text.match(re);
+        if (m) return m[1].replace(/\\n/g, '\n').replace(/\\t/g, '\t');
+        return '';
+    }
+
+    // Extract a JSON number value using regex
+    function regexExtractNumber(text, key) {
+        const re = new RegExp('"' + key + '"\\s*:\\s*([\\d.]+)');
+        const m = text.match(re);
+        return m ? parseFloat(m[1]) : 0;
+    }
+
+    // Extract a JSON array of strings using regex (for recommendations)
+    function regexExtractStringArray(text, key) {
+        const re = new RegExp('"' + key + '"\\s*:\\s*\\[([\\s\\S]*?)\\]');
+        const m = text.match(re);
+        if (!m) return [];
+        const items = [];
+        const itemRe = /"((?:[^"\\]|\\.)*)"/g;
+        let im;
+        while ((im = itemRe.exec(m[1])) !== null) {
+            items.push(im[1].replace(/\\n/g, '\n').replace(/\\t/g, '\t'));
+        }
+        return items;
+    }
+
+    // Render markdown text to HTML using marked.js or basic fallback
+    function renderMd(text) {
+        if (!text) return '';
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({ breaks: true, gfm: true });
+            return marked.parse(text);
+        }
+        return text
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+    }
+
+    // ── Deep-extract structured fields ──────────────
+
+    // The raw findings text from the AI (might be JSON, truncated JSON, or plain text)
+    const rawFindings = stripCodeBlock(data.findings || '');
+    const rawRawResponse = stripCodeBlock(typeof data.raw_response === 'string' ? data.raw_response : '');
+    // Pick the best source to regex-search (whichever looks like JSON)
+    const jsonSource = rawFindings.includes('"diagnosis"') ? rawFindings
+                     : rawRawResponse.includes('"diagnosis"') ? rawRawResponse : '';
+
+    // Try full JSON parse first
+    let parsed = null;
+    for (const src of [rawFindings, rawRawResponse]) {
+        if (!src || !src.trim().startsWith('{')) continue;
+        try { parsed = JSON.parse(src); break; } catch(e) {}
+        // Try cleaning trailing commas
+        try {
+            const fixed = src.replace(/,\s*([}\]])/g, '$1');
+            parsed = JSON.parse(fixed); break;
+        } catch(e) {}
+    }
+
+    // Build final display data from best available sources
+    const display = {
+        diagnosis:       data.diagnosis || (parsed && parsed.diagnosis) || regexExtractString(jsonSource, 'diagnosis') || '',
+        confidence:      0,
+        findings:        '',
+        recommendations: '',
+        recArray:        [],
+        labValues:       data.lab_values || (parsed && parsed.lab_values) || [],
+        regions:         data.regions || (parsed && parsed.regions) || [],
+    };
+
+    // Confidence: prefer real value over 0.7 fallback
+    const rawConf = (parsed && parsed.confidence) || regexExtractNumber(jsonSource, 'confidence');
+    const dataConf = parseFloat(data.confidence || 0);
+    display.confidence = (rawConf && rawConf !== 0.7) ? rawConf : (dataConf || rawConf || 0);
+
+    // Findings text: extract clean text, never show raw JSON
+    const extractedFindings = (parsed && parsed.findings) || regexExtractString(jsonSource, 'findings');
+    if (extractedFindings) {
+        display.findings = extractedFindings;
+    } else if (rawFindings && !rawFindings.startsWith('{')) {
+        display.findings = rawFindings;
+    } else if (display.diagnosis) {
+        display.findings = '';  // diagnosis already shown, findings section can be empty
+    } else {
+        display.findings = rawFindings;  // last resort
+    }
+
+    // Recommendations
+    const recFromParsed = parsed && parsed.recommendations;
+    if (Array.isArray(recFromParsed)) {
+        display.recArray = recFromParsed;
+    } else if (typeof recFromParsed === 'string' && recFromParsed) {
+        display.recommendations = recFromParsed;
+    } else if (Array.isArray(data.recommendations)) {
+        display.recArray = data.recommendations;
+    } else if (typeof data.recommendations === 'string' && data.recommendations) {
+        display.recommendations = data.recommendations;
+    } else {
+        display.recArray = regexExtractStringArray(jsonSource, 'recommendations');
+    }
+
+    // ── Render UI ───────────────────────────────────
+
+    // -- Diagnosis --
+    const diagEl = document.getElementById('display-diagnosis');
+    if (display.diagnosis) {
+        diagEl.textContent = display.diagnosis;
+        diagEl.className = 'text-base text-gray-900 font-bold';
+    } else {
+        diagEl.textContent = 'Lihat temuan di bawah';
+        diagEl.className = 'text-sm text-gray-500 italic';
+    }
+
+    // -- Confidence --
+    const conf = display.confidence;
+    if (conf > 0) {
+        const pct = Math.round(conf <= 1 ? conf * 100 : conf);
+        document.getElementById('section-confidence').classList.remove('hidden');
+        const bar = document.getElementById('confidence-bar');
+        const txt = document.getElementById('confidence-text');
+        bar.style.width = pct + '%';
+        txt.textContent = pct + '%';
+        if (pct >= 80) {
+            bar.className = bar.className + ' bg-gradient-to-r from-emerald-400 to-emerald-500';
+            txt.className = txt.className.replace(/text-\w+-600/g, '') + ' text-emerald-600';
+        } else if (pct >= 50) {
+            bar.className = bar.className + ' bg-gradient-to-r from-amber-400 to-amber-500';
+            txt.className = txt.className.replace(/text-\w+-600/g, '') + ' text-amber-600';
+        } else {
+            bar.className = bar.className + ' bg-gradient-to-r from-red-400 to-red-500';
+            txt.className = txt.className.replace(/text-\w+-600/g, '') + ' text-red-600';
+        }
+    }
+
+    // -- Findings --
+    const findEl = document.getElementById('display-findings');
+    if (display.findings) {
+        findEl.innerHTML = renderMd(display.findings);
+    } else {
+        findEl.textContent = '\u2014';
+    }
+
+    // -- Recommendations --
+    const recSection = document.getElementById('section-recommendations');
+    const recEl = document.getElementById('display-recommendations');
+    if (display.recArray.length > 0) {
+        recSection.classList.remove('hidden');
+        let html = '<ol class="list-decimal pl-5 space-y-1.5">';
+        display.recArray.forEach(item => {
+            const clean = typeof item === 'string' ? item.replace(/\\n/g, '\n') : String(item);
+            html += '<li class="text-sm text-gray-700 leading-relaxed">' + renderMd(clean).replace(/^<p>/, '').replace(/<\/p>\s*$/, '') + '</li>';
+        });
+        html += '</ol>';
+        recEl.innerHTML = html;
+    } else if (display.recommendations) {
+        recSection.classList.remove('hidden');
+        recEl.innerHTML = renderMd(display.recommendations);
+    }
+
+    // -- Lab values --
+    const labValues = display.labValues;
+    if (Array.isArray(labValues) && labValues.length > 0) {
+        document.getElementById('section-lab-values').classList.remove('hidden');
+        const tbody = document.getElementById('lab-values-body');
+        const statusColors = {
+            'normal': 'text-emerald-600 bg-emerald-50',
+            'tinggi': 'text-amber-700 bg-amber-50',
+            'rendah': 'text-blue-700 bg-blue-50',
+            'kritis': 'text-red-700 bg-red-50 font-bold',
+        };
+        labValues.forEach(lv => {
+            const cls = statusColors[lv.status] || 'text-gray-600';
+            tbody.innerHTML += '<tr class="border-t border-gray-100">' +
+                '<td class="px-4 py-2 font-medium text-gray-900">' + (lv.test || '') + '</td>' +
+                '<td class="px-4 py-2">' + (lv.value || '') + '</td>' +
+                '<td class="px-4 py-2 text-gray-400">' + (lv.unit || '') + '</td>' +
+                '<td class="px-4 py-2"><span class="px-2 py-0.5 rounded-full text-xs ' + cls + '">' + (lv.status || 'N/A') + '</span></td>' +
+                '</tr>';
+        });
+    }
+})();
+
+function inspectionViewer() {
+    // Parse regions from raw_response JSON, with deep extraction
+    let rawRegions = [];
+    try {
+        const rawEl = document.getElementById('inspection-raw-data');
+        if (rawEl) {
+            const rawResponse = JSON.parse(rawEl.textContent);
+            if (rawResponse && Array.isArray(rawResponse.regions) && rawResponse.regions.length > 0) {
+                rawRegions = rawResponse.regions;
+            }
+            // If top-level regions empty, try extracting from findings (might be JSON)
+            if (!rawRegions.length && rawResponse.findings) {
+                let ft = rawResponse.findings.trim();
+                if (ft.startsWith('```')) {
+                    const lines = ft.split('\n');
+                    if (lines[0].startsWith('```')) lines.shift();
+                    if (lines.length && lines[lines.length - 1].trim() === '```') lines.pop();
+                    ft = lines.join('\n').trim();
+                }
+                if (ft.startsWith('{')) {
+                    try {
+                        const parsed = JSON.parse(ft);
+                        if (Array.isArray(parsed.regions)) rawRegions = parsed.regions;
+                    } catch(e) {
+                        // Try cleaning trailing commas
+                        try {
+                            const fixed = ft.replace(/,\s*([}\]])/g, '$1');
+                            const parsed = JSON.parse(fixed);
+                            if (Array.isArray(parsed.regions)) rawRegions = parsed.regions;
+                        } catch(e2) {}
+                    }
+                }
+            }
+        }
+    } catch (e) {}
+
+    return {
+        regions: rawRegions,
+        selectedRegion: null,
+
+        severityColors: {
+            'normal':    { fill: 'rgba(16, 185, 129, 0.20)', stroke: '#10b981', dot: 'bg-emerald-400' },
+            'perhatian': { fill: 'rgba(245, 158, 11, 0.25)', stroke: '#f59e0b', dot: 'bg-amber-400' },
+            'abnormal':  { fill: 'rgba(239, 68, 68, 0.25)',  stroke: '#ef4444', dot: 'bg-red-400' },
+        },
+
+        initOverlay() {
+            if (!this.regions.length) return;
+
+            const img = document.getElementById('inspection-image');
+            const canvas = document.getElementById('highlight-canvas');
+            const container = document.getElementById('region-overlays');
+
+            if (!img || !canvas) return;
+
+            // Wait for image to fully render
+            setTimeout(() => {
+                const w = img.clientWidth;
+                const h = img.clientHeight;
+
+                canvas.width = w;
+                canvas.height = h;
+                canvas.style.width = w + 'px';
+                canvas.style.height = h + 'px';
+
+                this.drawAllRegions();
+                this.createClickableOverlays(w, h);
+            }, 100);
+        },
+
+        drawAllRegions(highlightIdx = null) {
+            const canvas = document.getElementById('highlight-canvas');
+            const img = document.getElementById('inspection-image');
+            if (!canvas || !img) return;
+
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            this.regions.forEach((region, idx) => {
+                if (!region.bbox || region.bbox.length !== 4) return;
+
+                const [ymin, xmin, ymax, xmax] = region.bbox;
+                const x = (xmin / 1000) * w;
+                const y = (ymin / 1000) * h;
+                const rw = ((xmax - xmin) / 1000) * w;
+                const rh = ((ymax - ymin) / 1000) * h;
+
+                const severity = region.severity || 'perhatian';
+                const colors = this.severityColors[severity] || this.severityColors.perhatian;
+
+                const isSelected = idx === highlightIdx;
+
+                // Fill
+                ctx.fillStyle = isSelected ? colors.fill.replace(/[\d.]+\)$/, '0.4)') : colors.fill;
+                ctx.fillRect(x, y, rw, rh);
+
+                // Border
+                ctx.strokeStyle = colors.stroke;
+                ctx.lineWidth = isSelected ? 3 : 2;
+                if (isSelected) ctx.setLineDash([]);
+                else ctx.setLineDash([6, 3]);
+                ctx.strokeRect(x, y, rw, rh);
+                ctx.setLineDash([]);
+
+                // Label background
+                const label = region.label || `Region ${idx + 1}`;
+                ctx.font = 'bold 11px Inter, system-ui, sans-serif';
+                const textW = ctx.measureText(label).width;
+                const labelH = 18;
+                const labelY = y > labelH + 4 ? y - labelH - 2 : y;
+
+                ctx.fillStyle = colors.stroke;
+                ctx.beginPath();
+                ctx.roundRect(x, labelY, textW + 10, labelH, 4);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(label, x + 5, labelY + 13);
+            });
+        },
+
+        createClickableOverlays(w, h) {
+            const container = document.getElementById('region-overlays');
+            container.innerHTML = '';
+
+            this.regions.forEach((region, idx) => {
+                if (!region.bbox || region.bbox.length !== 4) return;
+
+                const [ymin, xmin, ymax, xmax] = region.bbox;
+                const x = (xmin / 1000) * w;
+                const y = (ymin / 1000) * h;
+                const rw = ((xmax - xmin) / 1000) * w;
+                const rh = ((ymax - ymin) / 1000) * h;
+
+                const div = document.createElement('div');
+                div.className = 'absolute cursor-pointer';
+                div.style.left = x + 'px';
+                div.style.top = y + 'px';
+                div.style.width = rw + 'px';
+                div.style.height = rh + 'px';
+                div.title = region.label + (region.description ? ': ' + region.description : '');
+                div.addEventListener('click', () => this.highlightRegion(idx));
+                container.appendChild(div);
+            });
+        },
+
+        highlightRegion(idx) {
+            this.selectedRegion = this.selectedRegion === idx ? null : idx;
+            this.drawAllRegions(this.selectedRegion);
+        },
+
+        severityClass(sev) {
+            const map = {
+                'normal': 'bg-emerald-50 border-emerald-200 text-emerald-700',
+                'perhatian': 'bg-amber-50 border-amber-200 text-amber-700',
+                'abnormal': 'bg-red-50 border-red-200 text-red-700',
+            };
+            return map[sev] || map.perhatian;
+        },
+
+        severityDot(sev) {
+            return (this.severityColors[sev] || this.severityColors.perhatian).dot;
+        },
+
+        severityBadge(sev) {
+            const map = {
+                'normal': 'bg-emerald-100 text-emerald-700',
+                'perhatian': 'bg-amber-100 text-amber-700',
+                'abnormal': 'bg-red-100 text-red-700',
+            };
+            return map[sev] || map.perhatian;
+        },
+
+        severityLabel(sev) {
+            const map = { 'normal': 'Normal', 'perhatian': 'Perhatian', 'abnormal': 'Abnormal' };
+            return map[sev] || 'Perhatian';
+        },
+    };
+}
+</script>
+{% endblock %}

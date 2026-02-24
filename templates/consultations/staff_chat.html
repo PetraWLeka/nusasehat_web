@@ -1,0 +1,719 @@
+{% extends "base.html" %}
+{% block title %}Konsultasi AI (Staff) — NusaHealth Cloud{% endblock %}
+{% block page_title %}Konsultasi AI — Staff{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* AI markdown content styling */
+    .ai-content h1, .ai-content h2, .ai-content h3 { font-weight: 700; margin-top: 0.75em; margin-bottom: 0.25em; }
+    .ai-content h1 { font-size: 1.1em; }
+    .ai-content h2 { font-size: 1.05em; }
+    .ai-content h3 { font-size: 1em; }
+    .ai-content p { margin-bottom: 0.5em; }
+    .ai-content ul, .ai-content ol { padding-left: 1.5em; margin-bottom: 0.5em; }
+    .ai-content ul { list-style-type: disc; }
+    .ai-content ol { list-style-type: decimal; }
+    .ai-content li { margin-bottom: 0.2em; }
+    .ai-content strong { font-weight: 700; }
+    .ai-content em { font-style: italic; }
+    .ai-content code { background: rgba(0,0,0,0.06); padding: 0.1em 0.3em; border-radius: 0.25em; font-size: 0.9em; }
+    .ai-content blockquote { border-left: 3px solid #d1d5db; padding-left: 0.75em; color: #6b7280; margin: 0.5em 0; }
+    .ai-content > *:last-child { margin-bottom: 0; }
+
+    /* Typing indicator */
+    .typing-dots span {
+        display: inline-block;
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: #9ca3af;
+        animation: typingBounce 1.4s infinite ease-in-out both;
+    }
+    .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typingBounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
+    }
+
+    /* Triage badge colors */
+    .triage-badge-green { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .triage-badge-yellow { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .triage-badge-red { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+    /* Smooth message appearance */
+    .msg-enter { animation: msgSlideIn 0.3s ease-out; }
+    @keyframes msgSlideIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Session list active highlight */
+    .session-active {
+        background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+        border-color: #86efac;
+        box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row gap-4 md:gap-5 h-[calc(100vh-10rem)]" x-data="consultationChat()">
+    <!-- Sidebar: Sessions -->
+    <div class="w-full md:w-72 flex-shrink-0 flex flex-col md:h-full">
+        <div class="card flex-1 flex flex-col p-0 overflow-hidden">
+            <!-- Sidebar Header -->
+            <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                <h3 class="font-bold text-gray-900 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                    Sesi Konsultasi
+                </h3>
+            </div>
+
+            <!-- New Session Form -->
+            <div class="px-4 py-3 border-b border-gray-100">
+                <form method="post" action="{% url 'consultations:start_staff_session' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="session_type" value="staff">
+                    <select name="patient_id" class="form-input text-xs mb-2 w-full">
+                        <option value="">Tanpa pasien (umum)...</option>
+                        {% for p in patients %}
+                        <option value="{{ p.pk }}" {% if selected_patient == p.pk %}selected{% endif %}>{{ p.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn-primary w-full text-xs py-2 flex items-center justify-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        Sesi Baru
+                    </button>
+                </form>
+            </div>
+
+            <!-- Session List -->
+            <div class="flex-1 overflow-y-auto px-3 py-2 space-y-1">
+                {% for s in sessions %}
+                <div class="flex items-start gap-1 group/session">
+                    <a href="{% url 'consultations:load_session' s.pk %}"
+                       class="flex-1 block p-2.5 rounded-xl text-xs transition-all border {% if active_session and active_session.pk == s.pk %}session-active{% else %}hover:bg-gray-50 border-transparent{% endif %}">
+                        <p class="font-semibold text-gray-800 truncate">{{ s.patient.full_name|default:s.title }}</p>
+                        <div class="flex items-center gap-1.5 mt-1">
+                            <div class="w-1.5 h-1.5 rounded-full {% if s.is_active %}bg-emerald-400{% else %}bg-gray-300{% endif %}"></div>
+                            <span class="text-gray-400">{{ s.created_at|date:"d/m H:i" }}</span>
+                            <span class="text-gray-300">&bull;</span>
+                            <span class="{% if s.is_active %}text-emerald-600 font-medium{% else %}text-gray-400{% endif %}">
+                                {% if s.is_active %}Aktif{% else %}Selesai{% endif %}
+                            </span>
+                        </div>
+                    </a>
+                    <form method="post" action="{% url 'consultations:delete_session' s.pk %}" class="flex-shrink-0 opacity-0 group-hover/session:opacity-100 transition-opacity" onsubmit="return confirm('Hapus sesi ini?')">
+                        {% csrf_token %}
+                        <button type="submit" class="p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors mt-2" title="Hapus sesi">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+
+                {% if not sessions %}
+                <div class="text-center py-6">
+                    <p class="text-xs text-gray-400">Belum ada sesi konsultasi</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="flex-1 card flex flex-col p-0 overflow-hidden min-h-[400px] md:min-h-0">
+        {% if active_session %}
+        <!-- Chat Header -->
+        <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between bg-white flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-primary-50 rounded-xl flex items-center justify-center">
+                    {% if active_session.patient %}
+                    <span class="text-xs font-bold text-primary-600">{{ active_session.patient.full_name|truncatechars:2|upper }}</span>
+                    {% else %}
+                    <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    {% endif %}
+                </div>
+                <div>
+                    <p class="font-bold text-gray-900 text-sm">{{ active_session.patient.full_name|default:active_session.title }}</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <p class="text-[0.6875rem] text-gray-400">{{ active_session.created_at|date:"d/m/Y H:i" }}</p>
+                        {% if not active_session.is_active %}
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.6rem] font-medium bg-gray-100 text-gray-500">Selesai</span>
+                        {% else %}
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.6rem] font-medium bg-emerald-50 text-emerald-600">Aktif</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% if active_session.is_active %}
+            <button type="button" class="btn-secondary text-xs px-3 py-1.5" onclick="endConsultation({{ active_session.pk }})">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+                Akhiri
+            </button>
+            {% endif %}
+        </div>
+
+        <!-- Summary (if session ended and has summary) -->
+        {% if active_session.summary and not active_session.is_active %}
+        <div class="px-5 py-3 bg-blue-50 border-b border-blue-100 flex-shrink-0">
+            <div class="flex items-start gap-2">
+                <svg class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <div class="text-xs text-blue-800 flex-1">
+                    <p class="font-semibold mb-1">Ringkasan Konsultasi:</p>
+                    <div class="ai-content summary-content">{{ active_session.summary }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Messages -->
+        <div class="flex-1 overflow-y-auto px-5 py-4 space-y-5 bg-gray-50/30" id="chat-messages">
+            {% for msg in messages_list %}
+            <div class="flex {% if msg.sender_type == 'user' %}justify-end{% else %}justify-start{% endif %} msg-enter">
+                {% if msg.sender_type == 'user' %}
+                <!-- User message -->
+                <div class="max-w-[75%] flex flex-col items-end">
+                    <div class="bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-2xl rounded-br-md px-4 py-2.5 shadow-sm">
+                        <div class="text-sm leading-relaxed whitespace-pre-wrap">{{ msg.content }}</div>
+                    </div>
+                    <span class="text-[0.625rem] text-gray-400 mt-1 mr-1">{{ msg.timestamp|date:"H:i" }}</span>
+                </div>
+                {% else %}
+                <!-- AI message -->
+                <div class="max-w-[80%] flex gap-2.5">
+                    <!-- AI avatar -->
+                    <div class="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center mt-1
+                        {% if msg.triage_level == 'red' %}bg-red-100{% elif msg.triage_level == 'yellow' %}bg-amber-100{% elif msg.triage_level == 'green' %}bg-emerald-100{% else %}bg-gray-100{% endif %}">
+                        <svg class="w-3.5 h-3.5 {% if msg.triage_level == 'red' %}text-red-500{% elif msg.triage_level == 'yellow' %}text-amber-500{% elif msg.triage_level == 'green' %}text-emerald-500{% else %}text-gray-400{% endif %}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <!-- Model info + triage badge -->
+                        <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                            <span class="text-[0.6875rem] font-semibold text-gray-500">
+                                {% if msg.sender_type == 'ai_4b' %}MedGemma 4B{% elif msg.sender_type == 'ai_27b' %}MedGemma 27B{% else %}Sistem{% endif %}
+                            </span>
+                            {% if msg.triage_level and msg.triage_level != 'none' %}
+                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[0.625rem] font-semibold triage-badge-{{ msg.triage_level }}">
+                                {% if msg.triage_level == 'red' %}
+                                    <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                    Darurat
+                                {% elif msg.triage_level == 'yellow' %}
+                                    <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                    Perlu Perhatian
+                                {% elif msg.triage_level == 'green' %}
+                                    <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                    Aman
+                                {% endif %}
+                            </span>
+                            {% endif %}
+                            {% if msg.confidence_score %}
+                            <span class="text-[0.625rem] text-gray-400">{% widthratio msg.confidence_score 1 100 %}% confidence</span>
+                            {% endif %}
+                        </div>
+                        <!-- Content bubble -->
+                        <div class="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm border border-gray-100">
+                            <div class="ai-content prose prose-sm max-w-none text-gray-800 text-sm leading-relaxed">{{ msg.content }}</div>
+
+                            {% if msg.suggested_actions %}
+                            <div class="mt-3 pt-2.5 border-t border-gray-100">
+                                <p class="text-[0.6875rem] font-semibold text-gray-500 mb-1.5 flex items-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                                    Saran Tindakan:
+                                </p>
+                                <div class="space-y-1">
+                                    {% for action in msg.suggested_actions %}
+                                    <div class="flex items-start gap-1.5 text-xs text-gray-600">
+                                        <svg class="w-3 h-3 text-primary-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>
+                                        <span>{{ action }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if msg.rag_sources %}
+                            <div class="mt-3 pt-2.5 border-t border-gray-100">
+                                <p class="text-[0.6875rem] font-semibold text-gray-500 mb-1.5 flex items-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                                    Sumber Referensi:
+                                </p>
+                                <div class="flex flex-wrap gap-1.5">
+                                    {% for src in msg.rag_sources %}
+                                    <button onclick="showRagSource({{ src.document_id|default:'0' }}, {{ src.chunk_index|default:'0' }}, '{{ src.source|escapejs }}')"
+                                            class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[0.6875rem] bg-gray-50 text-gray-600 hover:bg-primary-50 hover:text-primary-700 transition-colors cursor-pointer border border-gray-200 hover:border-primary-200"
+                                            title="Klik untuk melihat dokumen sumber">
+                                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        {{ src.source|truncatechars:25 }}
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <span class="text-[0.625rem] text-gray-400 mt-1 ml-1">{{ msg.timestamp|date:"H:i" }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <!-- Typing indicator (hidden by default) -->
+            <div class="flex justify-start msg-enter" id="typing-indicator" style="display: none;">
+                <div class="max-w-[80%] flex gap-2.5">
+                    <div class="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center mt-1 bg-gray-100">
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[0.6875rem] font-semibold text-gray-400 mb-1 block">AI sedang mengetik...</span>
+                        <div class="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm border border-gray-100">
+                            <div class="typing-dots flex gap-1.5">
+                                <span></span><span></span><span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input -->
+        {% if active_session.is_active %}
+        <div class="border-t border-gray-100 px-5 py-3.5 bg-white flex-shrink-0">
+            <form @submit.prevent="sendMessage" class="flex gap-3 items-end">
+                <div class="flex-1">
+                    <textarea x-model="newMessage"
+                        @keydown.enter.prevent="if (!$event.shiftKey) sendMessage()"
+                        placeholder="Ketik keluhan atau pertanyaan..."
+                        class="form-input w-full text-sm resize-none"
+                        rows="1"
+                        :disabled="sending"
+                        x-ref="chatInput"
+                        @input="$el.style.height = 'auto'; $el.style.height = Math.min($el.scrollHeight, 120) + 'px'"
+                        style="min-height: 40px; max-height: 120px;"></textarea>
+                </div>
+                <button type="submit" class="btn-primary flex-shrink-0 h-10 w-10 !p-0 flex items-center justify-center rounded-xl" :disabled="sending || !newMessage.trim()">
+                    <span x-show="!sending">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                    </span>
+                    <span x-show="sending">
+                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                    </span>
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <!-- Read-only footer for ended sessions -->
+        <div class="border-t border-gray-100 px-5 py-3 bg-gray-50 flex-shrink-0 text-center">
+            <p class="text-xs text-gray-400">Sesi ini sudah diakhiri. Buat sesi baru untuk konsultasi lanjutan.</p>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Empty state -->
+        <div class="flex-1 flex items-center justify-center bg-gray-50/30">
+            <div class="text-center px-8">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary-50 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-primary-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                </div>
+                <p class="font-semibold text-gray-500 text-sm">Mulai Konsultasi AI</p>
+                <p class="text-xs text-gray-400 mt-1.5 max-w-xs mx-auto">Pilih pasien dan buat sesi baru dari panel sebelah kiri, atau klik sesi yang sudah ada.</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- RAG Source Viewer Modal -->
+<div id="rag-modal" class="fixed inset-0 z-50 hidden" onclick="closeRagModal(event)">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+    <div class="absolute inset-4 md:inset-[10%] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+            <div>
+                <h3 id="rag-modal-title" class="font-bold text-gray-900">Dokumen Sumber</h3>
+                <p id="rag-modal-subtitle" class="text-xs text-gray-400 mt-0.5"></p>
+            </div>
+            <button onclick="closeRagModal()" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div id="rag-modal-body" class="flex-1 overflow-y-auto p-6">
+            <div class="flex items-center justify-center h-full">
+                <svg class="animate-spin h-8 w-8 text-primary-400" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/**
+ * Extract clean display text from AI content.
+ * Handles: raw JSON blobs, markdown, plain text.
+ */
+function cleanAiContent(text) {
+    if (!text || typeof text !== 'string') return text || '';
+    text = text.trim();
+
+    // Strip markdown code fences
+    const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (fenceMatch) text = fenceMatch[1].trim();
+
+    // 1. Try full JSON parse
+    if (text.startsWith('{')) {
+        try {
+            const parsed = JSON.parse(text);
+            if (parsed && typeof parsed === 'object' && parsed.response) {
+                return parsed.response;
+            }
+        } catch (e) { /* fall through to regex */ }
+    }
+
+    // 2. Regex extraction — works on truncated/malformed JSON too
+    if (text.includes('"response"')) {
+        const m = text.match(/"response"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+        if (m) {
+            try { return JSON.parse('"' + m[1] + '"'); }
+            catch { return m[1]; }
+        }
+    }
+    return text;
+}
+
+function escapeHtml(text) {
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
+}
+
+function showRagSource(documentId, chunkIndex, sourceName) {
+    const modal = document.getElementById('rag-modal');
+    const title = document.getElementById('rag-modal-title');
+    const subtitle = document.getElementById('rag-modal-subtitle');
+    const body = document.getElementById('rag-modal-body');
+
+    title.textContent = sourceName || 'Dokumen Sumber';
+    subtitle.textContent = 'Memuat konten...';
+    body.innerHTML = '<div class="flex items-center justify-center h-32"><svg class="animate-spin h-8 w-8 text-primary-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></div>';
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+    if (!documentId || documentId === '0') {
+        subtitle.textContent = '';
+        body.innerHTML = '<div class="bg-amber-50 text-amber-700 rounded-xl p-4 text-sm">Dokumen sumber tidak tersedia.</div>';
+        return;
+    }
+
+    fetch(`/library/${documentId}/chunks/`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                subtitle.textContent = '';
+                body.innerHTML = `<div class="bg-red-50 text-red-700 rounded-xl p-4 text-sm">${data.error}</div>`;
+                return;
+            }
+            subtitle.textContent = `${data.category} · ${data.total_chunks} bagian`;
+            if (!data.chunks || data.chunks.length === 0) {
+                body.innerHTML = '<div class="bg-gray-50 text-gray-500 rounded-xl p-4 text-sm">Tidak ada konten terindeks.</div>';
+                return;
+            }
+            let html = '<div class="space-y-4">';
+            data.chunks.forEach((chunk, i) => {
+                const hl = chunk.chunk_index === chunkIndex;
+                html += `<div class="rounded-xl p-4 text-sm leading-relaxed border ${hl ? 'bg-primary-50 border-primary-200 ring-2 ring-primary-300' : 'bg-gray-50 border-gray-100'}">`;
+                html += `<p class="text-[0.6875rem] font-bold ${hl ? 'text-primary-600' : 'text-gray-400'} uppercase tracking-wider mb-2">Bagian ${chunk.chunk_index + 1}${hl ? ' — <span class="text-primary-500 normal-case">Direferensikan oleh AI</span>' : ''}</p>`;
+                html += `<div class="whitespace-pre-wrap text-gray-700">${escapeHtml(chunk.text)}</div></div>`;
+            });
+            html += '</div>';
+            body.innerHTML = html;
+            const highlighted = body.querySelector('.ring-2');
+            if (highlighted) setTimeout(() => highlighted.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+        })
+        .catch(() => {
+            subtitle.textContent = '';
+            body.innerHTML = '<div class="bg-red-50 text-red-700 rounded-xl p-4 text-sm">Gagal memuat konten.</div>';
+        });
+}
+
+function closeRagModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    document.getElementById('rag-modal').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeRagModal(); });
+
+// End consultation via fetch
+async function endConsultation(sessionId) {
+    if (!confirm('Akhiri konsultasi? AI akan membuat ringkasan.')) return;
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+                          document.querySelector('meta[name=csrf-token]')?.content;
+        const resp = await fetch(`/consultations/api/end/${sessionId}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
+        });
+        const data = await resp.json();
+        if (data.task_id) {
+            const btn = event.target.closest('button');
+            if (btn) { btn.textContent = 'Mengakhiri...'; btn.disabled = true; }
+            setTimeout(() => location.reload(), 2500);
+        } else {
+            alert(data.error || 'Gagal mengakhiri sesi.');
+        }
+    } catch (e) {
+        alert('Gagal mengakhiri sesi. Coba lagi.');
+    }
+}
+
+/**
+ * Render AI content: clean JSON artifacts, parse markdown, render to HTML.
+ */
+function renderAiContent(el) {
+    const raw = el.textContent || '';
+    const cleaned = cleanAiContent(raw);
+    if (typeof marked !== 'undefined') {
+        marked.setOptions({ breaks: true, gfm: true });
+        el.innerHTML = marked.parse(cleaned);
+    } else {
+        // Fallback: basic whitespace preservation
+        el.innerHTML = escapeHtml(cleaned).replace(/\n/g, '<br>');
+    }
+}
+
+// Render all existing AI content on page load
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.ai-content').forEach(renderAiContent);
+
+    // Also render summary if present
+    document.querySelectorAll('.summary-content').forEach(function(el) {
+        const raw = el.textContent.trim();
+        if (raw && typeof marked !== 'undefined') {
+            marked.setOptions({ breaks: true, gfm: true });
+            el.innerHTML = marked.parse(raw);
+        }
+    });
+
+    // Scroll to bottom
+    const container = document.getElementById('chat-messages');
+    if (container) container.scrollTop = container.scrollHeight;
+});
+
+function consultationChat() {
+    return {
+        newMessage: '',
+        sending: false,
+        taskId: null,
+
+        async sendMessage() {
+            if (!this.newMessage.trim() || this.sending) return;
+            this.sending = true;
+            const msg = this.newMessage;
+            this.newMessage = '';
+
+            // Reset textarea height
+            if (this.$refs.chatInput) {
+                this.$refs.chatInput.style.height = 'auto';
+            }
+
+            // Append user message to UI immediately
+            this.appendUserMessage(msg);
+
+            // Show typing indicator
+            this.showTyping(true);
+
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+                                  document.querySelector('meta[name=csrf-token]')?.content;
+                const resp = await fetch("{% url 'consultations:send_message' active_session.pk|default:0 %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await resp.json();
+                if (data.task_id) {
+                    this.taskId = data.task_id;
+                    this.pollTask();
+                } else {
+                    this.showTyping(false);
+                    this.appendSystemMessage(data.error || 'Gagal mengirim pesan.');
+                    this.sending = false;
+                }
+            } catch (e) {
+                this.showTyping(false);
+                this.appendSystemMessage('Gagal mengirim pesan. Coba lagi.');
+                this.sending = false;
+            }
+        },
+
+        async pollTask() {
+            if (!this.taskId) return;
+            try {
+                const resp = await fetch(`/consultations/api/task/${this.taskId}/`);
+                const data = await resp.json();
+
+                if (data.status === 'completed') {
+                    this.showTyping(false);
+                    // Fetch latest messages and render inline
+                    await this.loadNewMessages();
+                    this.sending = false;
+                    this.taskId = null;
+                } else if (data.status === 'failed') {
+                    this.showTyping(false);
+                    this.appendSystemMessage(data.error || 'AI gagal memproses pesan.');
+                    this.sending = false;
+                    this.taskId = null;
+                } else {
+                    setTimeout(() => this.pollTask(), 2000);
+                }
+            } catch (e) {
+                setTimeout(() => this.pollTask(), 3000);
+            }
+        },
+
+        async loadNewMessages() {
+            try {
+                const sessionId = {{ active_session.pk|default:0 }};
+                const resp = await fetch(`/consultations/api/messages/${sessionId}/`);
+                const data = await resp.json();
+
+                if (data.messages && data.messages.length > 0) {
+                    // Find the latest AI message
+                    const aiMsgs = data.messages.filter(m => m.sender_type !== 'user');
+                    if (aiMsgs.length > 0) {
+                        const lastAi = aiMsgs[aiMsgs.length - 1];
+                        this.appendAiMessage(lastAi);
+                    }
+                }
+            } catch (e) {
+                // Fallback: reload page
+                location.reload();
+            }
+        },
+
+        appendUserMessage(text) {
+            const container = document.getElementById('chat-messages');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex justify-end msg-enter';
+            wrapper.innerHTML = `
+                <div class="max-w-[75%] flex flex-col items-end">
+                    <div class="bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-2xl rounded-br-md px-4 py-2.5 shadow-sm">
+                        <div class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</div>
+                    </div>
+                    <span class="text-[0.625rem] text-gray-400 mt-1 mr-1">${new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})}</span>
+                </div>`;
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+        },
+
+        appendAiMessage(msg) {
+            const container = document.getElementById('chat-messages');
+            const content = cleanAiContent(msg.content || '');
+            const triageLevel = msg.triage_level || 'none';
+
+            // Triage colors
+            const avatarBg = triageLevel === 'red' ? 'bg-red-100' : triageLevel === 'yellow' ? 'bg-amber-100' : triageLevel === 'green' ? 'bg-emerald-100' : 'bg-gray-100';
+            const avatarText = triageLevel === 'red' ? 'text-red-500' : triageLevel === 'yellow' ? 'text-amber-500' : triageLevel === 'green' ? 'text-emerald-500' : 'text-gray-400';
+
+            let triageBadge = '';
+            if (triageLevel && triageLevel !== 'none') {
+                const badges = {
+                    'green': { label: 'Aman', cls: 'triage-badge-green' },
+                    'yellow': { label: 'Perlu Perhatian', cls: 'triage-badge-yellow' },
+                    'red': { label: 'Darurat', cls: 'triage-badge-red' },
+                };
+                const b = badges[triageLevel];
+                if (b) {
+                    triageBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[0.625rem] font-semibold ${b.cls}">${b.label}</span>`;
+                }
+            }
+
+            const modelName = msg.sender_type === 'ai_4b' ? 'MedGemma 4B' : msg.sender_type === 'ai_27b' ? 'MedGemma 27B' : 'Sistem';
+            const confidence = msg.confidence_score ? `<span class="text-[0.625rem] text-gray-400">${Math.round(msg.confidence_score * 100)}%</span>` : '';
+
+            // Render suggested actions
+            let actionsHtml = '';
+            if (msg.suggested_actions && msg.suggested_actions.length > 0) {
+                actionsHtml = `<div class="mt-3 pt-2.5 border-t border-gray-100">
+                    <p class="text-[0.6875rem] font-semibold text-gray-500 mb-1.5">Saran Tindakan:</p>
+                    <div class="space-y-1">
+                        ${msg.suggested_actions.map(a => `<div class="flex items-start gap-1.5 text-xs text-gray-600"><svg class="w-3 h-3 text-primary-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg><span>${escapeHtml(a)}</span></div>`).join('')}
+                    </div></div>`;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex justify-start msg-enter';
+            wrapper.innerHTML = `
+                <div class="max-w-[80%] flex gap-2.5">
+                    <div class="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center mt-1 ${avatarBg}">
+                        <svg class="w-3.5 h-3.5 ${avatarText}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                            <span class="text-[0.6875rem] font-semibold text-gray-500">${modelName}</span>
+                            ${triageBadge} ${confidence}
+                        </div>
+                        <div class="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm border border-gray-100">
+                            <div class="ai-content prose prose-sm max-w-none text-gray-800 text-sm leading-relaxed"></div>
+                            ${actionsHtml}
+                        </div>
+                        <span class="text-[0.625rem] text-gray-400 mt-1 ml-1">${new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})}</span>
+                    </div>
+                </div>`;
+
+            container.appendChild(wrapper);
+
+            // Render AI content with markdown
+            const aiEl = wrapper.querySelector('.ai-content');
+            if (typeof marked !== 'undefined') {
+                marked.setOptions({ breaks: true, gfm: true });
+                aiEl.innerHTML = marked.parse(content);
+            } else {
+                aiEl.innerHTML = escapeHtml(content).replace(/\n/g, '<br>');
+            }
+
+            container.scrollTop = container.scrollHeight;
+        },
+
+        appendSystemMessage(text) {
+            const container = document.getElementById('chat-messages');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex justify-center msg-enter';
+            wrapper.innerHTML = `<div class="px-4 py-2 rounded-xl bg-red-50 text-red-600 text-xs border border-red-100">${escapeHtml(text)}</div>`;
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+        },
+
+        showTyping(show) {
+            const el = document.getElementById('typing-indicator');
+            if (el) {
+                el.style.display = show ? 'flex' : 'none';
+                if (show) {
+                    const container = document.getElementById('chat-messages');
+                    container.scrollTop = container.scrollHeight;
+                }
+            }
+        },
+
+        init() {
+            const container = document.getElementById('chat-messages');
+            if (container) container.scrollTop = container.scrollHeight;
+            // Focus input
+            if (this.$refs.chatInput) {
+                this.$refs.chatInput.focus();
+            }
+        }
+    }
+}
+</script>
+{% endblock %}
