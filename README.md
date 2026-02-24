@@ -1,4 +1,4 @@
-# 🏥 NusaHealth Cloud
+# 🏥 NusaSehat Cloud
 
 ![NusaHealth Banner](https://img.shields.io/badge/MedGemma-Powered_Health_Center_Management-10b981?style=for-the-badge)
 ![Cloud Run](https://img.shields.io/badge/Deployed_on-Google_Cloud_Run_L4_GPU-4285F4?style=for-the-badge&logo=googlecloud)
