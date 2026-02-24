@@ -10,13 +10,6 @@
 With NusaHealth Cloud, **no patient data ever leaves your server**.
 
 ---
-<div align="center">
-  <video src="./raw_full_demo.mp4" width="100%" controls="controls">
-    Your browser does not support the video tag.
-  </video>
-  <br/>
-  <i>▶️ Watch the full NusaHealth Cloud Agentic Workflow in action.</i>
-</div>
 
 ## ✨ Why NusaHealth Cloud?
 
